@@ -1,13 +1,15 @@
 package domain
 
-class Player(name: String) {
-  private val hand: Hand = new TileCollection()
+class Player(name: String) extends HandChecks {
+  private var hand: Hand = Hand()
 
-  def receive(tiles: TileCollection): Unit = hand.insert(tiles)
+  protected def getHand: Hand = hand
 
-  def describe(): String = s"Player $name holds: ${hand.describe()}"
+  def receive(tiles: TileCollection): Unit = hand = hand.copy(concealedTiles = tiles.toArray)
 
-  def reactToNewStone(): NewStoneReaction = DeclareMahjong(hand)
+  def describe(): String = s"Player $name holds: $hand"
+
+  def reactToNewStone(): NewStoneReaction = Discard(0)
 
   def reactToDiscard(tile: Tile): DiscardReaction = DoNothing
 }

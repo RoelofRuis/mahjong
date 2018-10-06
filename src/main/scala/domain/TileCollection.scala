@@ -1,10 +1,10 @@
 package domain
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 class TileCollection(tiles: Iterable[Tile] = Seq()) {
-  private val s: ListBuffer[Tile] = new ListBuffer[Tile]
+  private val s: ArrayBuffer[Tile] = new ArrayBuffer[Tile]
 
   s.appendAll(tiles)
 
@@ -13,7 +13,7 @@ class TileCollection(tiles: Iterable[Tile] = Seq()) {
   def take(n: Int): TileCollection = new TileCollection((1 to n).map(_ => s.remove(0)))
   def size(): Int = s.size
   def shuffled(): TileCollection = new TileCollection(Random.shuffle(s))
-  def describe(): String = s.mkString(", ")
+  def toArray: Array[Tile] = s.toArray
 
   protected def iterate(): Iterable[Tile] = s
 }
