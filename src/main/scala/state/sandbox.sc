@@ -1,47 +1,26 @@
-import domain._
-import state._
-import state.transitions.{NewRoundTransition, NextTurnTransition, TileDiscardedTransition, TileReceivedTransition}
+import model.NodeInitializer
+import state.GameLoop
 
 object sandbox {
 
-  val Tiles: TileCollection = new TileCollection()
-  (1 to 9).foreach(i => Tiles.add(s"bamboo $i", 4))
-  (1 to 9).foreach(i => Tiles.add(s"circles $i", 4))
-  (1 to 9).foreach(i => Tiles.add(s"characters $i", 4))
-  Seq("red", "green", "white").foreach(c => Tiles.add(s"$c dragon", 4))
-  Seq("east", "west", "north", "south").foreach(d => Tiles.add(s"$d wind", 4))
+  val bamboos = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"bamboo $i")
+  val circles = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"circles $i")
+  val characters = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"characters $i")
+  val dragons = Vector("red", "green", "white").flatMap(Vector.fill(4)(_))
+  val winds = Vector("east", "west", "north", "south").flatMap(Vector.fill(4)(_))
 
-  val WallBuilder = new WallBuilder(Tiles)
+  val Tiles = (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
 
-  val Dealer = new Dealer(WallBuilder)
+  val Players = Vector("alice", "bob", "charlie", "dave")
 
-  val Player1: Player = new Player("player 1")
-  val Player2: Player = new Player("player 2")
-  val Player3: Player = new Player("player 3")
-  val Player4: Player = new Player("player 4")
+  val initializer = new NodeInitializer(Tiles, Players)
 
-  val Table = new Table(Seq(Player1, Player2, Player3, Player4))
+  println(initializer.initNode())
 
-  val NewRoundTransition = new NewRoundTransition(Dealer)
-  val NextTurnTransition = new NextTurnTransition(Dealer)
-  val TileDiscardedTransition = new TileDiscardedTransition
-  val TileReceivedTransition = new TileReceivedTransition
+  val gameLoop = GameLoop(initializer.initNode())
 
-  val transitions: (Table, GameState) => GameState = { (table, current) =>
-    current match {
-      case s: NewRound => NewRoundTransition.next(s, table)
-      case s: NextTurn => NextTurnTransition.next(s, table)
-      case s: TileDiscarded => TileDiscardedTransition.next(s, table)
-      case s: TileReceived => TileReceivedTransition.next(s, table)
-      case s =>
-        println(s"received unknown state: $s")
-        End
-    }
+  val finalState = gameLoop.run()
 
-  }
-
-  val gameLoop = new GameLoop(Table, NewRound(), transitions)
-
-  gameLoop.run()
+  println(finalState.players(finalState.activePlayer).hand)
 
 }

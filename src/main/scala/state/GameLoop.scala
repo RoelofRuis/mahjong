@@ -1,18 +1,20 @@
 package state
 
-import domain.Table
+import model.Node
 
-class GameLoop(initialTable: Table, initialState: GameState, transition: (Table, GameState) => GameState) {
+case class GameLoop(initialNode: Node) {
 
-  private val table = initialTable
-  private var currentState = initialState
+  private var node: Node = initialNode
 
-  def run(): Unit = {
-    while (currentState != End) {
-      println(s"State: $currentState")
-      currentState = transition(table, currentState)
+  def run(): Node = {
+
+    while (node.state != End) {
+      println(s"State: ${node.state}")
+      node = node.state.transition(node)
     }
     println("The game has ended")
+
+    node
   }
 
 }
