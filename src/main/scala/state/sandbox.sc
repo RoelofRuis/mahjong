@@ -1,4 +1,4 @@
-import model.NodeInitializer
+import model.{NodeInitializer, PrettyPrint}
 import state.GameLoop
 
 object sandbox {
@@ -21,6 +21,6 @@ object sandbox {
 
   val finalState = gameLoop.run()
 
-  println(finalState.players(finalState.activePlayer).hand)
+  print(PrettyPrint.prettyPrint(finalState))
 
 }
