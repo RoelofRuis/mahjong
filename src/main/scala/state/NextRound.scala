@@ -1,22 +1,21 @@
 package state
 
 import model._
+
 import scala.collection.immutable.Vector
 
-object NextRound extends GameState {
+object NextRound {
 
-  override def transition(node: Node): Node = {
-    val livingWall = Node.wall >=> Wall.living
-    def playerConcealedTiles(i: Int) = Node.players.at(i) >=> Player.hand >=> Hand.concealedTiles
-
-    var varNode = node
-
-    for (i: Int <- 0 until node.players.size) {
-      val (taken: Vector[Tile], left: Vector[Tile]) = livingWall.get(varNode).splitAt(13)
-      varNode = playerConcealedTiles(i).set(varNode, taken)
-      varNode = livingWall.set(varNode, left)
+  def transition: Transition = Transition { node =>
+    def dealInitialHands(node: Node, players: Iterable[Wind]): Node = {
+      if (players.isEmpty) node
+      else {
+        val (taken: Vector[Tile], wall: Wall) = node.wall.takeFromLiving(14)
+        val node1 = node.addPlayerConcealedTiles(players.head, taken)
+        dealInitialHands(node1.setWall(wall), players.tail)
+      }
     }
 
-    varNode.copy(state = End)
+    (dealInitialHands(node, node.players.keys), None)
   }
 }

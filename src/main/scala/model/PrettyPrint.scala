@@ -30,7 +30,7 @@ object PrettyPrint {
 
   implicit object PrettyNode extends PrettyPrinter[Node] {
     def format(node: Node): String = {
-      "Round: %s\n%s\nActive Player: %d\n\n%s\n" format (
+      "Round: %s\n%s\nActive Player: %s\n\n%s\n" format (
         node.windOfRound,
         prettyPrint(node.wall),
         node.activePlayer,

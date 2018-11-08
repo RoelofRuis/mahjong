@@ -2,19 +2,14 @@ package state
 
 import model.Node
 
-case class GameLoop(initialNode: Node) {
+object GameLoop {
 
-  private var node: Node = initialNode
+  def run(initialState: Node, transition: Transition): Node = {
 
-  def run(): Node = {
+    val (nextState, nextTransition) = transition.run(initialState)
 
-    while (node.state != End) {
-      println(s"State: ${node.state}")
-      node = node.state.transition(node)
-    }
-    println("The game has ended")
-
-    node
+    if (nextTransition.isDefined) run(nextState, nextTransition.get)
+    else nextState
   }
 
 }

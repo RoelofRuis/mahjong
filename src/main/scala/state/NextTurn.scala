@@ -1,9 +1,14 @@
 package state
 
-import model.Node
+import model._
 
-object NextTurn extends GameState {
+import scala.collection.immutable.Vector
 
-  override def transition(node: Node): Node = ???
+object NextTurn {
 
+  def transition: Transition = Transition { node =>
+
+
+    ???
+  }
 }

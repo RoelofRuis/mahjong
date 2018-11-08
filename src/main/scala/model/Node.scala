@@ -1,28 +1,29 @@
 package model
 
-import scalaz.{Lens, LensFamily}
-import state.GameState
-
 import scala.collection.immutable.Map
 
 case class Node(
-  state: GameState,
   windOfRound: Wind,
   wall: Wall,
-  players: Map[Int, Player],
-  activePlayer: Int
-)
+  players: Map[Wind, Player],
+  activePlayer: Wind
+) {
 
-object Node {
+  def setWall(wall: Wall): Node = this.copy(wall = wall)
 
-  val wall: Lens[Node, Wall] = LensFamily.lensu[Node, Wall](
-    (node, wall) => node.copy(wall = wall),
-    _.wall
-  )
-
-  val players: Lens[Node, Map[Int, Player]] = LensFamily.lensu[Node, Map[Int, Player]](
-    (node, players) => node.copy(players = players),
-    _.players
-  )
+  def addPlayerConcealedTiles(wind: Wind, tiles: Vector[Tile]): Node = {
+    players.get(wind).map { player =>
+      player.copy(
+        hand = player.hand.copy(
+          concealedTiles = player.hand.concealedTiles ++ tiles
+        )
+      )
+    }.map { player =>
+      this.copy(
+        players = players.updated(wind, player)
+      )
+    }.getOrElse(this)
+  }
 
 }
+

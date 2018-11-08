@@ -1,25 +1,17 @@
-import model.{NodeInitializer, PrettyPrint}
-import state.GameLoop
+import model.{Initializer, PrettyPrint}
+import state.{GameLoop, NextRound}
+
+import scala.util.Random
 
 object sandbox {
 
-  val bamboos = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"bamboo $i")
-  val circles = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"circles $i")
-  val characters = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => s"characters $i")
-  val dragons = Vector("red", "green", "white").flatMap(Vector.fill(4)(_))
-  val winds = Vector("east", "west", "north", "south").flatMap(Vector.fill(4)(_))
-
-  val Tiles = (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
-
   val Players = Vector("alice", "bob", "charlie", "dave")
 
-  val initializer = new NodeInitializer(Tiles, Players)
+  val Tiles = Initializer.tileset
 
-  println(initializer.initNode())
+  val game = Initializer.newGame(Tiles, Players, Random)
 
-  val gameLoop = GameLoop(initializer.initNode())
-
-  val finalState = gameLoop.run()
+  val finalState = GameLoop.run(game, NextRound.transition)
 
   print(PrettyPrint.prettyPrint(finalState))
 
