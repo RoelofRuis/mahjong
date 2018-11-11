@@ -1,10 +1,10 @@
 package state
 
-import model.Node
+import model.Table
 
 object GameLoop {
 
-  def run(initialState: Node, transition: Transition): Node = {
+  def run(initialState: Table, transition: Transition): Table = {
 
     val (nextState, nextTransition) = transition.run(initialState)
 

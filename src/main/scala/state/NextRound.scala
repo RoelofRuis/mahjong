@@ -7,7 +7,7 @@ import scala.collection.immutable.Vector
 object NextRound {
 
   def transition: Transition = Transition { node =>
-    def dealInitialHands(node: Node, players: Iterable[Wind]): Node = {
+    def dealInitialHands(node: Table, players: Iterable[Wind]): Table = {
       if (players.isEmpty) node
       else {
         val (taken: Vector[Tile], wall: Wall) = node.wall.takeFromLiving(14)

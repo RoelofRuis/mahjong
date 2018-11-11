@@ -1,5 +1,5 @@
 package state
 
-import model.Node
+import model.Table
 
-case class Transition(run: Node => (Node, Option[Transition]))
+case class Transition(run: Table => (Table, Option[Transition]))

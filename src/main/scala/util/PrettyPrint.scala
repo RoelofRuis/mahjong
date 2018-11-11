@@ -1,4 +1,6 @@
-package model
+package util
+
+import model._
 
 object PrettyPrint {
 
@@ -28,12 +30,21 @@ object PrettyPrint {
     }
   }
 
-  implicit object PrettyNode extends PrettyPrinter[Node] {
-    def format(node: Node): String = {
-      "Round: %s\n%s\nActive Player: %s\n\n%s\n" format (
-        node.windOfRound,
+  implicit object PrettyRound extends PrettyPrinter[Round] {
+    def format(round: Round): String = {
+      "Round: %s\nTurn: %d\nActive Player: %s" format (
+        round.wind,
+        round.turn,
+        round.activePlayer
+      )
+    }
+  }
+
+  implicit object PrettyNode extends PrettyPrinter[Table] {
+    def format(node: Table): String = {
+      "%s\n\n%s\n\n%s" format (
+        prettyPrint(node.round),
         prettyPrint(node.wall),
-        node.activePlayer,
         node.players.values.map((player: Player) => prettyPrint(player)).mkString("\n\n")
       )
     }

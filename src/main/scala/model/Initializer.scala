@@ -14,7 +14,7 @@ object Initializer {
     (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
   }
 
-  def newGame(tiles: Vector[Tile], playerNames: Vector[String], random: Random): Node = {
+  def newGame(tiles: Vector[Tile], playerNames: Vector[String], random: Random): Table = {
     assert(playerNames.size <= Wind.ORDER.size)
 
     val shuffled = random.shuffle(tiles)
@@ -34,11 +34,16 @@ object Initializer {
       )
     }.toMap
 
-    Node(
+    val round = Round(
       Wind.ORDER(0),
+      0,
+      Wind.ORDER(0)
+    )
+
+    Table(
+      round,
       wall,
       players,
-      Wind.ORDER(0)
     )
   }
 }

@@ -1,5 +1,7 @@
 package model
 
+import model.Combinations.Combination
+
 import scala.collection.immutable.Vector
 
 case class Hand(

@@ -1,5 +1,6 @@
-import model.{Initializer, PrettyPrint}
+import model.Initializer
 import state.{GameLoop, NextRound}
+import util.PrettyPrint
 
 import scala.util.Random
 
