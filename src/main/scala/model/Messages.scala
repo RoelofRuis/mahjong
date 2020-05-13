@@ -1,6 +1,6 @@
-package object model {
+package model
 
-  type Tile = String
+object Messages {
 
   sealed trait NewStoneReaction
   sealed trait DiscardReaction
