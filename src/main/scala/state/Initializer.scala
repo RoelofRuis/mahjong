@@ -1,3 +1,5 @@
+package state
+
 import model.Mahjong._
 
 import scala.util.Random
