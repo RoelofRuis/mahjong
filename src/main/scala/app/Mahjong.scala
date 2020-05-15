@@ -14,9 +14,14 @@ object Mahjong {
 
     renderer.fill("green")
 
-    renderer.drawTile(200, 400)
-
     val game = Initializer.newGame(Vector("Eva", "Jeanette", "Mimi", "Corintha"), Random)
+
+    renderer.drawTile(100, 100, game.wall.living.head)
+    renderer.drawTile(100, 120, game.wall.living.tail.head)
+
+//    game.wall.living.zipWithIndex.foreach { case (tile, i) =>
+//      renderer.drawTile((i * 12), (i * 12), tile)
+//    }
 
     printDebug(game.prettyPrint)
   }
