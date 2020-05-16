@@ -13,19 +13,22 @@ object Rendering {
   }
 
   implicit class Render2DOps(ctx: CanvasRenderingContext2D) {
-
     def fill(color: String): Unit = {
       ctx.translate(0, 0)
       ctx.fillStyle = color
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     }
-
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
 
+    def drawTileFaceDown(x: Double, y: Double): Unit = {
+      drawTileOutline(x, y)
+    }
+
     def drawTile(x: Double, y: Double, tile: Tile): Unit = {
       drawTileOutline(x, y)
+
       tile match {
         case SuitedTile(Bamboos, number) =>
           drawNumber(x, y, number)

@@ -48,4 +48,5 @@ object Initializer {
 
     Game(round, wall, players)
   }
+
 }
