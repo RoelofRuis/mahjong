@@ -1,5 +1,6 @@
 package app
 
+import app.view.NewGame.NewGameModel
 import app.view.{Board, HTML, NewGame}
 import model.Mahjong.{East, North, South, West, WindDirection}
 import state.Initializer
@@ -12,12 +13,13 @@ object App {
 
   def main(args: Array[String]): Unit = {
     Storage.loadGame() match {
-      case None =>
-        HTML.render(NewGame.view())
-
-      case Some(game) =>
+      case Right(Some(game)) =>
         HTML.render(Board.view())
         Board.draw(game)
+      case Right(None) =>
+        HTML.render(NewGame.view())
+      case Left(err) =>
+        HTML.render(NewGame.view(NewGameModel(), err))
     }
   }
 
