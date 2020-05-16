@@ -1,31 +1,35 @@
 package app
 
-import app.view.NewGame
-import org.scalajs.dom.{document, html}
-import org.scalajs.dom.raw.Element
+import app.view.{HTML, NewGame}
+import model.Mahjong.{East, North, South, West, WindDirection}
+import state.Initializer
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.util.Random
 
 @JSExportTopLevel("Mahjong")
 object Mahjong {
 
-  val root: Element = document.getElementById("root")
-
   def main(args: Array[String]): Unit = {
-    root.innerHTML = NewGame.view().render
+    HTML.render(NewGame.view())
   }
 
   @JSExport("startNewGame")
   def startNewGame(): Unit = {
-    val player1 = document.getElementById("player-1").asInstanceOf[html.Input].value
-    val player2 = document.getElementById("player-2").asInstanceOf[html.Input].value
-    val player3 = document.getElementById("player-3").asInstanceOf[html.Input].value
-    val player4 = document.getElementById("player-4").asInstanceOf[html.Input].value
+    NewGame.validate match {
+      case (model, None) =>
+        val playerMap: Map[WindDirection, String] = Seq(
+          (East, model.east),
+          (South, model.south),
+          (West, model.west),
+          (North, model.north)
+        ).collect { case (dir, Some(name)) => dir -> name }.toMap
 
-    // validate
-    root.innerHTML = NewGame.view().render
+        val game = Initializer.newGame(playerMap, Random)
 
-    println("lieve mensen, het spel gaat beginnen")
+        println("lieve mensen, het spel gaat beginnen")
+      case (model, Some(err)) => HTML.render(NewGame.view(model, err))
+    }
   }
 
 }

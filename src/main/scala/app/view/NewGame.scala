@@ -12,6 +12,19 @@ object NewGame {
     north: Option[String] = None
   )
 
+  def validate: (NewGameModel, Option[String]) = {
+    val model = NewGameModel(
+      HTML.inputValue("player-1"),
+      HTML.inputValue("player-2"),
+      HTML.inputValue("player-3"),
+      HTML.inputValue("player-4")
+    )
+
+    val numDefined = Seq(model.east, model.south, model.west, model.north).flatten.size
+    if (numDefined < 3) (model, Some("At least 3 players should be entered"))
+    else (model, None)
+  }
+
   def view(model: NewGameModel = NewGameModel(), error: String = ""): Text.TypedTag[String] = {
     div(cls := "form")(
       div(cls := "form-group")(
