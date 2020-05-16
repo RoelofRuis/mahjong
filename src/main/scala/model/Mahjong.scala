@@ -1,6 +1,7 @@
 package model
 
 import scala.collection.immutable.{Map, Vector}
+import upickle.default.{ReadWriter => RW, macroRW}
 
 object Mahjong {
 
@@ -25,7 +26,7 @@ object Mahjong {
   final case class WindTile(windDirection: WindDirection) extends Tile
   final case class SuitedTile(suite: Suite, number: Int) extends Tile
 
-  trait Combination
+  sealed trait Combination
   final case class Pung(tile: Tile) extends Combination
   final case class Kong(tile: Tile) extends Combination
   final case class Chow(tile: Tile) extends Combination
@@ -68,5 +69,25 @@ object Mahjong {
     wall: Wall,
     players: Players
   )
+
+  object Serializable {
+    implicit val rwWindDirection: RW[WindDirection] = macroRW
+    implicit val rwDragonColor: RW[DragonColor] = macroRW
+    implicit val rwSuite: RW[Suite] = macroRW
+    implicit val rwDragonTile: RW[DragonTile] = macroRW
+    implicit val rwWindTile: RW[WindTile] = macroRW
+    implicit val rwSuitedTile: RW[SuitedTile] = macroRW
+    implicit val rwTile: RW[Tile] = macroRW
+    implicit val rwPung: RW[Pung] = macroRW
+    implicit val rwKong: RW[Kong] = macroRW
+    implicit val rwChow: RW[Chow] = macroRW
+    implicit val rwCombination: RW[Combination] = macroRW
+    implicit val rwHand: RW[Hand] = macroRW
+    implicit val rwDiscards: RW[Discards] = macroRW
+    implicit val rwPlayer: RW[Player] = macroRW
+    implicit val rwWall: RW[Wall] = macroRW
+    implicit val rwRound: RW[Round] = macroRW
+    implicit val rwGame: RW[Game] = macroRW
+  }
 
 }

@@ -7,7 +7,7 @@ import org.scalajs.dom.html.Canvas
 
 object Rendering {
 
-  def rendererOn(id: String): CanvasRenderingContext2D = {
+  def renderOn(id: String): CanvasRenderingContext2D = {
     val canvas = dom.document.getElementById(id).asInstanceOf[Canvas]
     canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
   }
@@ -43,7 +43,7 @@ object Rendering {
       }
     }
 
-    def drawTileOutline(x: Double, y: Double): Unit = {
+    private def drawTileOutline(x: Double, y: Double): Unit = {
       ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.fillStyle = "white"
@@ -57,7 +57,7 @@ object Rendering {
       ctx.stroke()
     }
 
-    def drawCircle(x: Double, y: Double): Unit = {
+    private def drawCircle(x: Double, y: Double): Unit = {
       ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 10, y + 13)
@@ -65,7 +65,7 @@ object Rendering {
       ctx.stroke()
     }
 
-    def drawBamboo(x: Double, y: Double): Unit = {
+    private def drawBamboo(x: Double, y: Double): Unit = {
       ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 2, y + 17)
@@ -77,7 +77,7 @@ object Rendering {
       ctx.stroke()
     }
 
-    def drawCharacter(x: Double, y: Double): Unit = {
+    private def drawCharacter(x: Double, y: Double): Unit = {
       ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 2, y + 10)
@@ -89,7 +89,7 @@ object Rendering {
       ctx.stroke()
     }
 
-    def drawWind(x: Double, y: Double, dir: WindDirection): Unit = {
+    private def drawWind(x: Double, y: Double, dir: WindDirection): Unit = {
       ctx.font = "11px monospace"
       ctx.strokeStyle = "blue"
       val char = dir match {
@@ -101,7 +101,7 @@ object Rendering {
       ctx.strokeText(char.toString, x + 3, y + 13)
     }
 
-    def drawDragon(x: Double, y: Double, color: DragonColor): Unit = {
+    private def drawDragon(x: Double, y: Double, color: DragonColor): Unit = {
       color match {
         case Red =>
           ctx.font="11px monospace"
@@ -121,7 +121,7 @@ object Rendering {
       }
     }
 
-    def drawNumber(x: Double, y: Double, num: Int): Unit = {
+    private def drawNumber(x: Double, y: Double, num: Int): Unit = {
       ctx.font = "10px monospace"
       ctx.fillStyle = "black"
       ctx.strokeStyle = "black"

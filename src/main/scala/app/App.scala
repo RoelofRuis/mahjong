@@ -1,6 +1,6 @@
 package app
 
-import app.view.{HTML, NewGame}
+import app.view.{Board, HTML, NewGame}
 import model.Mahjong.{East, North, South, West, WindDirection}
 import state.Initializer
 
@@ -8,10 +8,17 @@ import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.Random
 
 @JSExportTopLevel("Mahjong")
-object Mahjong {
+object App {
 
   def main(args: Array[String]): Unit = {
-    HTML.render(NewGame.view())
+    Storage.loadGame() match {
+      case None =>
+        HTML.render(NewGame.view())
+
+      case Some(game) =>
+        HTML.render(Board.view())
+        Board.draw(game)
+    }
   }
 
   @JSExport("startNewGame")
@@ -26,8 +33,10 @@ object Mahjong {
         ).collect { case (dir, Some(name)) => dir -> name }.toMap
 
         val game = Initializer.newGame(playerMap, Random)
+        Storage.saveGame(game)
+        HTML.render(Board.view())
+        Board.draw(game)
 
-        println("lieve mensen, het spel gaat beginnen")
       case (model, Some(err)) => HTML.render(NewGame.view(model, err))
     }
   }
