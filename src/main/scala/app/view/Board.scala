@@ -10,13 +10,15 @@ object Board {
   def view(): Text.TypedTag[String] = {
     div(cls := "row")(
       div(cls := "col-md-8 mx-auto")(
-        canvas(id := "board", widthA := 600, heightA := 600)
+        canvas(id := "board", widthA := 600, heightA := 600),
+        button(cls := "btn bnt-outline-secondary", onclick := "Mahjong.nextRound()")("Next round")
       )
     )
   }
 
   def draw(game: Game): Unit = {
     val board = renderOn("board")
+    board.translate(0, 0)
 
     board.fill("green")
 
@@ -42,7 +44,6 @@ object Board {
     board.rotate(Math.PI * 0.5)
     drawPlayerHand(game.players(North).hand)
     Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
-
   }
 
 

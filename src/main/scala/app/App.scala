@@ -2,7 +2,7 @@ package app
 
 import app.view.NewGame.NewGameModel
 import app.view.{Board, HTML, NewGame}
-import model.Mahjong.{East, Game, North, South, West, WindDirection}
+import model.Mahjong._
 import state.{Initializer, Play}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
@@ -34,17 +34,26 @@ object App {
           (North, model.north)
         ).collect { case (dir, Some(name)) => dir -> name }.toMap
 
-        playGame(Initializer.newGame(playerMap, Random))
+        val newGame = Initializer.newGame(playerMap, Random)
+        Storage.saveGame(newGame)
+        HTML.render(Board.view())
+        Board.draw(newGame)
 
       case (model, Some(err)) => HTML.render(NewGame.view(model, err))
     }
   }
 
-  private def playGame(uninitializedGame: Game): Unit = {
-    val game = Play.nextRound(uninitializedGame)
-    Storage.saveGame(game)
-    HTML.render(Board.view())
-    Board.draw(game)
+  @JSExport("nextRound")
+  def nextRound(): Unit = {
+    Storage.loadGame() match {
+      case Right(Some(game)) =>
+        val nextRound = Play.nextRound(game)
+        Storage.saveGame(nextRound)
+        HTML.render(Board.view())
+        Board.draw(nextRound)
+
+      case _ => HTML.render(NewGame.view())
+    }
   }
 
 }
