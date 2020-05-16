@@ -1,29 +1,31 @@
 package app
 
-import state.Initializer
-import Util.printDebug
-import app.Rendering._
-import model.Debugger._
+import app.view.NewGame
+import org.scalajs.dom.{document, html}
+import org.scalajs.dom.raw.Element
 
-import scala.util.Random
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
+@JSExportTopLevel("Mahjong")
 object Mahjong {
 
+  val root: Element = document.getElementById("root")
+
   def main(args: Array[String]): Unit = {
-    val renderer = rendererOn("canvas")
+    root.innerHTML = NewGame.view().render
+  }
 
-    renderer.fill("green")
+  @JSExport("startNewGame")
+  def startNewGame(): Unit = {
+    val player1 = document.getElementById("player-1").asInstanceOf[html.Input].value
+    val player2 = document.getElementById("player-2").asInstanceOf[html.Input].value
+    val player3 = document.getElementById("player-3").asInstanceOf[html.Input].value
+    val player4 = document.getElementById("player-4").asInstanceOf[html.Input].value
 
-    val game = Initializer.newGame(Vector("Eva", "Jeanette", "Mimi", "Corintha"), Random)
+    // validate
+    root.innerHTML = NewGame.view().render
 
-    renderer.drawTile(100, 100, game.wall.living.head)
-    renderer.drawTile(100, 120, game.wall.living.tail.head)
-
-//    game.wall.living.zipWithIndex.foreach { case (tile, i) =>
-//      renderer.drawTile((i * 12), (i * 12), tile)
-//    }
-
-    printDebug(game.prettyPrint)
+    println("lieve mensen, het spel gaat beginnen")
   }
 
 }

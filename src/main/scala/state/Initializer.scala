@@ -16,7 +16,7 @@ object Initializer {
     (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
   }
 
-  def newGame(playerNames: Vector[String], random: Random): Game = {
+  def newGame(playerNames: Map[WindDirection, String], random: Random): Game = {
     assert(playerNames.size <= WIND_ORDER.size)
 
     val shuffled = random.shuffle(tileset)
@@ -26,15 +26,19 @@ object Initializer {
       shuffled.take(14)
     )
 
-    val players = playerNames.zipWithIndex.map { case (name, index) =>
-      WIND_ORDER(index) -> Player(
-        name,
-        0,
-        WIND_ORDER(index),
-        Hand(),
-        Discards()
-      )
-    }.toMap
+    val players = WIND_ORDER.flatMap { windDirection =>
+      playerNames.get(windDirection) match {
+        case None => None
+        case Some(name) =>
+          Some(Player(
+            name,
+            0,
+            windDirection,
+            Hand(),
+            Discards()
+          ))
+      }
+    }.map(player => player.wind -> player).toMap
 
     val round = Round(
       WIND_ORDER(0),

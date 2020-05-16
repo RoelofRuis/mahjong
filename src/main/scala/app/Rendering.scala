@@ -25,8 +25,6 @@ object Rendering {
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
 
     def drawTile(x: Double, y: Double, tile: Tile): Unit = {
-//      ctx.translate(0.5, 0.5)
-
       drawTileOutline(x, y)
       tile match {
         case SuitedTile(Bamboos, number) =>
@@ -43,11 +41,10 @@ object Rendering {
         case WindTile(dir) =>
           drawWind(x, y, dir)
       }
-
-//      ctx.translate(0.0, 0.0)
     }
 
     def drawTileOutline(x: Double, y: Double): Unit = {
+      ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.fillStyle = "white"
       ctx.moveTo(x, y)
@@ -61,6 +58,7 @@ object Rendering {
     }
 
     def drawCircle(x: Double, y: Double): Unit = {
+      ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 10, y + 13)
       ctx.arc(x + 6, y + 13, 4, 0, 360)
@@ -68,6 +66,7 @@ object Rendering {
     }
 
     def drawBamboo(x: Double, y: Double): Unit = {
+      ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 2, y + 17)
       ctx.lineTo(x + 10, y + 8)
@@ -79,6 +78,7 @@ object Rendering {
     }
 
     def drawCharacter(x: Double, y: Double): Unit = {
+      ctx.beginPath()
       ctx.strokeStyle = "black"
       ctx.moveTo(x + 2, y + 10)
       ctx.lineTo(x + 10, y + 10)
@@ -104,13 +104,13 @@ object Rendering {
     def drawDragon(x: Double, y: Double, color: DragonColor): Unit = {
       color match {
         case Red =>
-          ctx.font="13px monospace"
+          ctx.font="11px monospace"
           ctx.fillStyle = "red"
           ctx.strokeStyle = "red"
           ctx.strokeText("R", x + 3, y + 13)
           ctx.fillText("R", x + 3, y + 13)
         case Green =>
-          ctx.font="13px monospace"
+          ctx.font="11px monospace"
           ctx.fillStyle = "green"
           ctx.strokeStyle = "green"
           ctx.strokeText("G", x + 3, y + 13)
@@ -124,7 +124,8 @@ object Rendering {
     def drawNumber(x: Double, y: Double, num: Int): Unit = {
       ctx.font = "10px monospace"
       ctx.fillStyle = "black"
-      ctx.strokeText(num.toString, x + 1, y + 7)
+      ctx.strokeStyle = "black"
+      ctx.fillText(num.toString, x + 1, y + 7)
     }
 
   }

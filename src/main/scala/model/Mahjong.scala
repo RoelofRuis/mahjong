@@ -42,6 +42,8 @@ object Mahjong {
     discards: Vector[Tile] = Vector[Tile]()
   )
 
+  type Players = Map[WindDirection, Player]
+
   final case class Player(
     name: String,
     score: Int,
@@ -64,7 +66,7 @@ object Mahjong {
   final case class Game(
     round: Round,
     wall: Wall,
-    players: Map[WindDirection, Player]
+    players: Players
   )
 
 }
