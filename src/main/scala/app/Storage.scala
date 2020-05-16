@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 
 object Storage {
 
-  import model.Serializable._
+  import model.Mahjong.Serializable._
 
   private val GAME_KEY = "GAME"
 
