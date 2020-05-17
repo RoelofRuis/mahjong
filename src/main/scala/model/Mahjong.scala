@@ -37,10 +37,7 @@ object Mahjong {
   final case class Hand(
     concealedTiles: Vector[Tile] = Vector[Tile](),
     exposedCombinations: Vector[Combination] = Vector[Combination](),
-    concealedCombinations: Vector[Combination] = Vector[Combination]()
-  )
-
-  final case class Discards(
+    concealedCombinations: Vector[Combination] = Vector[Combination](),
     discards: Vector[Tile] = Vector[Tile]()
   )
 
@@ -51,7 +48,6 @@ object Mahjong {
     score: Int,
     wind: WindDirection,
     hand: Hand = Hand(),
-    discards: Discards = Discards(),
   )
 
   final case class Wall(
@@ -94,7 +90,6 @@ object Mahjong {
     implicit val rwChow: RW[Chow] = macroRW
     implicit val rwCombination: RW[Combination] = macroRW
     implicit val rwHand: RW[Hand] = macroRW
-    implicit val rwDiscards: RW[Discards] = macroRW
     implicit val rwPlayer: RW[Player] = macroRW
     implicit val rwWall: RW[Wall] = macroRW
     implicit val rwRound: RW[Round] = macroRW

@@ -35,7 +35,6 @@ object Initializer {
             0,
             windDirection,
             Hand(),
-            Discards()
           ))
       }
     }.map(player => player.wind -> player).toMap

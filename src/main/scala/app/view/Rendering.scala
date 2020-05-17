@@ -57,6 +57,9 @@ object Rendering {
       hand.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
         ctx.drawTile(-offset + (pos * 12), 276, tile)
       }
+      hand.discards.zipWithIndex.foreach { case (tile, pos) =>
+        ctx.drawTile(100 + (pos * 12), 150, tile)
+      }
     }
 
     def drawCompass(round: Round): Unit = {

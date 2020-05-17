@@ -13,10 +13,25 @@ object Board {
     )
 
     val controls = game.state match {
-      case model.Mahjong.NewGame => div(cls := "col-md8")(
-        button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Start game")
+      case model.Mahjong.NewGame => Seq(
+        div(cls := "col-md8")(
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Start game")
+        )
       )
-      case _ => div()
+      case model.Mahjong.TileReceived =>
+        Seq(table(cls := "table")(
+          tbody()(
+            game.players(game.round.activePlayer).hand.concealedTiles.zipWithIndex.map { case (tile, i) =>
+              tr()(
+                th()(tile.toString),
+                th()(
+                  button(cls := "btn btn-sm btn-outline-secondary", onclick := s"Mahjong.discard($i)")("Discard")
+                )
+              )
+            }
+          )
+        ))
+      case _ => Seq()
     }
 
     div(

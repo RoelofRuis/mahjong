@@ -58,8 +58,19 @@ object App {
         Storage.saveGame(newGame)
         displayGame(newGame)
 
-      case _ =>
-        HTML.render(NewGame.view(NewGameModel(), "No game data found"))
+      case _ => HTML.render(NewGame.view(NewGameModel(), "No game data found"))
+    }
+  }
+
+  @JSExport("discard")
+  def discard(i: Int): Unit = {
+    Storage.loadGame() match {
+      case Right(Some(game)) =>
+        val nextState = Play.discard(game, i)
+        Storage.saveGame(nextState)
+        displayGame(nextState)
+
+      case _ => HTML.render(NewGame.view(NewGameModel(), "No game data found"))
     }
   }
 
