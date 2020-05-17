@@ -36,14 +36,16 @@ object Rendering {
       ctx.rotate(-Math.PI * 2)
     }
 
-    def drawPlayer(player: Option[Player]): Unit = {
+    def drawPlayer(player: Option[Player], activePlayer: WindDirection): Unit = {
       player match {
         case None =>
         case Some(player) =>
           drawPlayerHand(player.hand)
 
           ctx.beginPath()
-          ctx.font = "12px monospace"
+          if (player.wind == activePlayer) ctx.font = "bold 12px monospace"
+          else ctx.font = "12px monospace"
+
           ctx.fillStyle = "black"
           ctx.fillText(player.name, -290, 290)
           ctx.stroke()
@@ -57,7 +59,7 @@ object Rendering {
       }
     }
 
-    def drawCompass(windOfRound: WindDirection, activePlayer: WindDirection): Unit = {
+    def drawCompass(round: Round): Unit = {
       val RADIUS = 60
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
@@ -78,7 +80,7 @@ object Rendering {
       ctx.font = "20px monospace"
       val coords = Seq((-5, RADIUS + 16), (-(RADIUS + 14), 6), (-5, -(RADIUS + 4)), (RADIUS + 2, 6))
       model.Mahjong.WIND_ORDER.zip(coords).foreach { case (dir, (x, y)) =>
-        if (dir == activePlayer) {
+        if (dir == round.activeWind) {
           ctx.fillStyle = "darkred"
           ctx.fillText(dir.asChar, x, y)
         }
@@ -89,7 +91,7 @@ object Rendering {
       }
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
-      ctx.fillText(windOfRound.asChar, -6, 6)
+      ctx.fillText(round.windOfRound.asChar, -6, 6)
       ctx.stroke()
     }
 

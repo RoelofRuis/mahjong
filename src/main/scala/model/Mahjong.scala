@@ -60,9 +60,10 @@ object Mahjong {
   )
 
   final case class Round(
-    wind: WindDirection,
-    turn: Int,
+    windOfRound: WindDirection,
+    activeWind: WindDirection,
     activePlayer: WindDirection,
+    turn: Int,
   )
 
   sealed trait State

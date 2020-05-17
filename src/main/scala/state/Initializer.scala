@@ -42,8 +42,9 @@ object Initializer {
 
     val round = Round(
       WIND_ORDER(0),
+      WIND_ORDER(0),
+      WIND_ORDER(0),
       0,
-      WIND_ORDER(0)
     )
 
     Game(NewGame, round, wall, players)

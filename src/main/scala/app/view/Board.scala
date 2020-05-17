@@ -35,16 +35,16 @@ object Board {
 
     board.translate(300.5, 300.5)
 
-    board.drawCompass(game.round.wind, game.round.activePlayer)
+    board.drawCompass(game.round)
     board.drawWall(game.wall.living.length + game.wall.dead.length)
 
-    board.drawPlayer(game.players.get(East))
+    board.drawPlayer(game.players.get(East), game.round.activePlayer)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(South))
+    board.drawPlayer(game.players.get(South), game.round.activePlayer)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(West))
+    board.drawPlayer(game.players.get(West), game.round.activePlayer)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(North))
+    board.drawPlayer(game.players.get(North), game.round.activePlayer)
   }
 
 }

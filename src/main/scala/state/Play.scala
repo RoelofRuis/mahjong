@@ -1,6 +1,6 @@
 package state
 
-import model.Mahjong.{Game, NewGame, NextTurn, State}
+import model.Mahjong.{Game, NewGame, NextRound, NextTurn, State}
 
 import scala.annotation.tailrec
 
