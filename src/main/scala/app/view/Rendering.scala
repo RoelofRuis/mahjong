@@ -36,14 +36,18 @@ object Rendering {
       ctx.rotate(-Math.PI * 2)
     }
 
-    def drawPlayer(player: Player): Unit = {
-      drawPlayerHand(player.hand)
+    def drawPlayer(player: Option[Player]): Unit = {
+      player match {
+        case None =>
+        case Some(player) =>
+          drawPlayerHand(player.hand)
 
-      ctx.beginPath()
-      ctx.font = "12px monospace"
-      ctx.fillStyle = "black"
-      ctx.fillText(player.name, -290, 290)
-      ctx.stroke()
+          ctx.beginPath()
+          ctx.font = "12px monospace"
+          ctx.fillStyle = "black"
+          ctx.fillText(player.name, -290, 290)
+          ctx.stroke()
+      }
     }
 
     def drawPlayerHand(hand: Hand): Unit = {

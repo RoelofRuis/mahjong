@@ -21,7 +21,8 @@ object NewGame {
     )
 
     val numDefined = Seq(model.east, model.south, model.west, model.north).flatten.size
-    if (numDefined < 3) (model, Some("At least 3 players should be entered"))
+    if (model.east.isEmpty) (model, Some("The East player is required"))
+    else if (numDefined < 3) (model, Some("At least 3 players should be entered"))
     else (model, None)
   }
 

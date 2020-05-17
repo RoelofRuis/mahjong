@@ -1,9 +1,9 @@
 package app.view
 
-import model.Mahjong.{East, Game, Hand, North, South, West}
+import app.view.Rendering._
+import model.Mahjong._
 import scalatags.Text
 import scalatags.Text.all._
-import Rendering._
 
 object Board {
 
@@ -33,13 +33,13 @@ object Board {
     board.drawCompass(game.round.wind, game.round.activePlayer)
     board.drawWall(game.wall.living.length + game.wall.dead.length)
 
-    board.drawPlayer(game.players(East))
+    board.drawPlayer(game.players.get(East))
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players(South))
+    board.drawPlayer(game.players.get(South))
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players(West))
+    board.drawPlayer(game.players.get(West))
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players(North))
+    board.drawPlayer(game.players.get(North))
   }
 
 }
