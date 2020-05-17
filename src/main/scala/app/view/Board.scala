@@ -14,7 +14,7 @@ object Board {
 
     val controls = game.state match {
       case model.Mahjong.NewGame => div(cls := "col-md8")(
-        button(cls := "btn btn-outline-primary", onclick := "Mahjong.next()")("Start game")
+        button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Start game")
       )
       case _ => div()
     }

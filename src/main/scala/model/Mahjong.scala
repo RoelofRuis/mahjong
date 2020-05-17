@@ -60,8 +60,7 @@ object Mahjong {
   )
 
   final case class Round(
-    windOfRound: WindDirection,
-    activeWind: WindDirection,
+    prevalentWind: WindDirection,
     activePlayer: WindDirection,
     turn: Int,
   )

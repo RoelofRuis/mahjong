@@ -78,20 +78,14 @@ object Rendering {
       ctx.lineTo(0, -RADIUS)
       ctx.lineTo(-10, -10)
       ctx.font = "20px monospace"
-      val coords = Seq((-5, RADIUS + 16), (-(RADIUS + 14), 6), (-5, -(RADIUS + 4)), (RADIUS + 2, 6))
+      val coords = Seq((-5, RADIUS + 16), (RADIUS + 2, 6), (-5, -(RADIUS + 4)), (-(RADIUS + 14), 6))
       model.Mahjong.WIND_ORDER.zip(coords).foreach { case (dir, (x, y)) =>
-        if (dir == round.activeWind) {
-          ctx.fillStyle = "darkred"
-          ctx.fillText(dir.asChar, x, y)
-        }
-        else {
-          ctx.fillStyle = "black"
-          ctx.fillText(dir.asChar, x, y)
-        }
+        ctx.fillStyle = "black"
+        ctx.fillText(dir.asChar, x, y)
       }
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
-      ctx.fillText(round.windOfRound.asChar, -6, 6)
+      ctx.fillText(round.prevalentWind.asChar, -6, 6)
       ctx.stroke()
     }
 
