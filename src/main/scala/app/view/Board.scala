@@ -36,6 +36,9 @@ object Board {
     }
 
     board.translate(300.5, 300.5)
+
+    board.drawCompass()
+
     drawPlayerHand(game.players(East).hand)
     Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
 
@@ -55,3 +58,4 @@ object Board {
 
 
 }
+

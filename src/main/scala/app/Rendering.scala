@@ -26,6 +26,33 @@ object Rendering {
       drawTileOutline(x, y)
     }
 
+    def drawCompass(): Unit = {
+      val RADIUS = 60
+      ctx.beginPath()
+      ctx.strokeStyle = "black"
+      ctx.fillStyle = "black"
+      ctx.arc(0, 0, RADIUS, 0, 2 * Math.PI)
+      ctx.moveTo(-10, -10)
+      ctx.lineTo(-RADIUS, 0)
+      ctx.lineTo(-10, 10)
+      ctx.lineTo(0, RADIUS)
+      ctx.lineTo(10, 10)
+      ctx.lineTo(RADIUS, 0)
+      ctx.lineTo(10, -10)
+      ctx.lineTo(0, -RADIUS)
+      ctx.lineTo(-10, -10)
+      ctx.lineTo(10, 10)
+      ctx.moveTo(10, -10)
+      ctx.lineTo(-10, 10)
+      ctx.font = "20px monospace"
+      // TODO: correct way around!
+      ctx.fillText("E", -5, RADIUS + 16)
+      ctx.fillText("W", -5, -(RADIUS + 4))
+      ctx.fillText("S", RADIUS + 2, 5)
+      ctx.fillText("N", -(RADIUS + 14), 5)
+      ctx.stroke()
+    }
+
     def drawTile(x: Double, y: Double, tile: Tile): Unit = {
       drawTileOutline(x, y)
 
