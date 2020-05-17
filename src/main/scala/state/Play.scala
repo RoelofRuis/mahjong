@@ -27,8 +27,8 @@ object Play {
 
     def dealTiles: Game = {
       game.players.foldRight(game) { case ((playerWind, player), state) =>
-        val tilesForPlayer = state.wall.living.take(14)
-        val newWall = state.wall.living.drop(14)
+        val tilesForPlayer = state.wall.living.take(13)
+        val newWall = state.wall.living.drop(13)
         state.copy(
           players=state.players.updated(playerWind, player.copy(hand=player.hand.copy(concealedTiles=tilesForPlayer))),
           wall=state.wall.copy(living=newWall)
