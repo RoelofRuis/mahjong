@@ -1,6 +1,6 @@
-package app
+package app.view
 
-import model.Mahjong.{Bamboos, Characters, Circles, DragonColor, DragonTile, East, Green, North, Red, South, SuitedTile, Tile, West, White, WindDirection, WindTile}
+import model.Mahjong._
 import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.html.Canvas
@@ -22,16 +22,46 @@ object Rendering {
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
 
-    def drawTileFaceDown(x: Double, y: Double): Unit = {
-      drawTileOutline(x, y)
+    def drawWall(size: Int): Unit = {
+      val wallLengths = Range(0, 4).foldRight((Seq[Int](), Math.ceil(size / 2.0).toInt)) { case (_, (seq, remaining)) =>
+        val numTiles = Math.min(remaining, 17)
+        (seq :+ numTiles, remaining - numTiles)
+      }._1
+
+      wallLengths.foreach { l =>
+        Range(17 - l, 17).foreach { pos => drawTileOutline(-102 + (pos * 12), 102) }
+        ctx.rotate(Math.PI * 0.5)
+      }
+
+      ctx.rotate(-Math.PI * 2)
     }
 
-    def drawCompass(): Unit = {
-      val RADIUS = 60
+    def drawPlayer(player: Player): Unit = {
+      drawPlayerHand(player.hand)
+
       ctx.beginPath()
+      ctx.font = "12px monospace"
+      ctx.fillStyle = "black"
+      ctx.fillText(player.name, -290, 290)
+      ctx.stroke()
+    }
+
+    def drawPlayerHand(hand: Hand): Unit = {
+      val offset = (hand.concealedTiles.length * 6)
+      hand.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
+        ctx.drawTile(-offset + (pos * 12), 276, tile)
+      }
+    }
+
+    def drawCompass(windOfRound: WindDirection, activePlayer: WindDirection): Unit = {
+      val RADIUS = 60
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
+      ctx.beginPath()
       ctx.arc(0, 0, RADIUS, 0, 2 * Math.PI)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(0, 0, 14, 0, 2 * Math.PI)
       ctx.moveTo(-10, -10)
       ctx.lineTo(-RADIUS, 0)
       ctx.lineTo(-10, 10)
@@ -41,15 +71,21 @@ object Rendering {
       ctx.lineTo(10, -10)
       ctx.lineTo(0, -RADIUS)
       ctx.lineTo(-10, -10)
-      ctx.lineTo(10, 10)
-      ctx.moveTo(10, -10)
-      ctx.lineTo(-10, 10)
       ctx.font = "20px monospace"
-      // TODO: correct way around!
-      ctx.fillText("E", -5, RADIUS + 16)
-      ctx.fillText("W", -5, -(RADIUS + 4))
-      ctx.fillText("S", RADIUS + 2, 5)
-      ctx.fillText("N", -(RADIUS + 14), 5)
+      val coords = Seq((-5, RADIUS + 16), (-(RADIUS + 14), 6), (-5, -(RADIUS + 4)), (RADIUS + 2, 6))
+      model.Mahjong.WIND_ORDER.zip(coords).foreach { case (dir, (x, y)) =>
+        if (dir == activePlayer) {
+          ctx.fillStyle = "darkred"
+          ctx.fillText(dir.asChar, x, y)
+        }
+        else {
+          ctx.fillStyle = "black"
+          ctx.fillText(dir.asChar, x, y)
+        }
+      }
+      ctx.strokeStyle = "black"
+      ctx.fillStyle = "black"
+      ctx.fillText(windOfRound.asChar, -6, 6)
       ctx.stroke()
     }
 
@@ -122,13 +158,7 @@ object Rendering {
     private def drawWind(x: Double, y: Double, dir: WindDirection): Unit = {
       ctx.font = "11px monospace"
       ctx.strokeStyle = "blue"
-      val char = dir match {
-        case West => 'W'
-        case East => 'E'
-        case North => 'N'
-        case South => 'S'
-      }
-      ctx.strokeText(char.toString, x + 3, y + 13)
+      ctx.strokeText(dir.asChar, x + 3, y + 13)
     }
 
     private def drawDragon(x: Double, y: Double, color: DragonColor): Unit = {
@@ -158,6 +188,17 @@ object Rendering {
       ctx.fillText(num.toString, x + 1, y + 7)
     }
 
+  }
+
+  implicit class WindDirectionLetters(windDirection: WindDirection) {
+    def asChar: String = {
+      windDirection match {
+        case West => "W"
+        case East => "E"
+        case North => "N"
+        case South => "S"
+      }
+    }
   }
 
 }

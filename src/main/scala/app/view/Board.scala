@@ -3,7 +3,7 @@ package app.view
 import model.Mahjong.{East, Game, Hand, North, South, West}
 import scalatags.Text
 import scalatags.Text.all._
-import app.Rendering._
+import Rendering._
 
 object Board {
 
@@ -28,34 +28,19 @@ object Board {
 
     board.fill("green")
 
-    def drawPlayerHand(hand: Hand): Unit = {
-      val offset = (hand.concealedTiles.length * 6)
-      hand.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
-        board.drawTile(-offset + (pos * 12), 276, tile)
-      }
-    }
-
     board.translate(300.5, 300.5)
 
-    board.drawCompass()
+    board.drawCompass(game.round.wind, game.round.activePlayer)
+    board.drawWall(game.wall.living.length + game.wall.dead.length)
 
-    drawPlayerHand(game.players(East).hand)
-    Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
-
+    board.drawPlayer(game.players(East))
     board.rotate(Math.PI * 0.5)
-    drawPlayerHand(game.players(South).hand)
-    Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
-
+    board.drawPlayer(game.players(South))
     board.rotate(Math.PI * 0.5)
-    drawPlayerHand(game.players(West).hand)
-    Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
-
+    board.drawPlayer(game.players(West))
     board.rotate(Math.PI * 0.5)
-    drawPlayerHand(game.players(North).hand)
-    Range(0, 17).foreach { pos => board.drawTileFaceDown(-102 + (pos * 12), 102) }
+    board.drawPlayer(game.players(North))
   }
-
-
 
 }
 
