@@ -14,7 +14,7 @@ object Board {
 
     val controls = game.state match {
       case model.Mahjong.NewGame => div(cls := "col-md8")(
-          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Start game")
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.transition()")("Start game")
         )
 
       case model.Mahjong.TileReceived =>
@@ -24,7 +24,7 @@ object Board {
               tr()(
                 th()(tile.toString),
                 th()(
-                  button(cls := "btn btn-sm btn-outline-secondary", onclick := s"Mahjong.discard($i)")("Discard")
+                  button(cls := "btn btn-sm btn-outline-secondary", onclick := s"Mahjong.reactToReceive($i)")("Discard")
                 )
               )
             }
@@ -33,10 +33,10 @@ object Board {
 
       case model.Mahjong.TileDiscarded =>
         if (game.activePlayer.wind == East) div(cls := "col-md8")(
-          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Continue")
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.reactToDiscard()")("Continue")
         )
         else div(cls := "col-md8")( // TODO: react if not you
-          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Continue")
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.reactToDiscard()")("Continue")
         )
 
       case _ => p()("Not implemented")

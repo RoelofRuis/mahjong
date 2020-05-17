@@ -77,6 +77,7 @@ object Mahjong {
     players: Players
   ) {
     def activePlayer: Player = players(round.activePlayer)
+    def nextPlayerWind: WindDirection = WIND_ORDER((WIND_ORDER.indexOf(round.activePlayer) + 1) % 4)
     def activeHand: Hand = activePlayer.hand
   }
 

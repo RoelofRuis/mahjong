@@ -24,23 +24,40 @@ object Play {
   }
 
   def discard(game: Game, tileIndex: Int): Game = {
-    val newHand = game.activeHand.copy(
-      concealedTiles=game.activeHand.concealedTiles.zipWithIndex.filter { case (_, i) => i != tileIndex }.map(_._1),
-      discards=game.activeHand.discards :+ game.activeHand.concealedTiles(tileIndex)
-    )
+    game.activePlayerDiscards(tileIndex)
+  }
 
-    game.copy(
-      state=TileDiscarded,
-      players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand))
-    )
+  def noDiscardReaction(game: Game): Game = {
+    transition(game.copy(
+      state=NextTurn,
+      round=game.round.copy(activePlayer=game.nextPlayerWind)
+    ))
   }
 
   implicit class GameActions(game: Game) {
 
+    def activePlayerDiscards(tileIndex: Int): Game = {
+      val newHand = game.activeHand.copy(
+        concealedTiles=game.activeHand.concealedTiles.zipWithIndex.filter { case (_, i) => i != tileIndex }.map(_._1),
+        discards=game.activeHand.discards :+ game.activeHand.concealedTiles(tileIndex)
+      )
+
+      game.copy(
+        state=TileDiscarded,
+        players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand))
+      )
+    }
+
     def dealIfMoreTiles: Game = {
       game.wall.living.headOption match {
         case None => game.copy(state=NextRound)
-        case Some(tile) => game.dealTileToActivePlayer(tile)
+        case Some(tile) =>
+          val newHand = game.activePlayer.hand.copy(concealedTiles=game.activePlayer.hand.concealedTiles :+ tile)
+          game.copy(
+            state=TileReceived,
+            players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand)),
+            wall=game.wall.copy(living=game.wall.living.tail)
+          )
       }
     }
 
@@ -54,14 +71,6 @@ object Play {
           wall=state.wall.copy(living=newWall)
         )
       }
-    }
-
-    def dealTileToActivePlayer(tile: Tile): Game = {
-      val newHand = game.activePlayer.hand.copy(concealedTiles=game.activePlayer.hand.concealedTiles :+ tile)
-      game.copy(
-        state=TileReceived,
-        players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand))
-      )
     }
   }
 

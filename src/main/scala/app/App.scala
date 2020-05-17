@@ -50,26 +50,30 @@ object App {
     }
   }
 
-  @JSExport("next")
-  def next(): Unit = {
-    Storage.loadGame() match {
-      case Right(Some(game)) =>
-        val newGame = Play.transition(game)
-        Storage.saveGame(newGame)
-        displayGame(newGame)
-
-      case _ => HTML.render(NewGame.view(NewGameModel(), "No game data found"))
-    }
+  @JSExport("transition")
+  def transition(): Unit = withLoadedGame { game =>
+    val nextState = Play.transition(game)
+    Storage.saveGame(nextState)
+    displayGame(nextState)
   }
 
-  @JSExport("discard")
-  def discard(i: Int): Unit = {
-    Storage.loadGame() match {
-      case Right(Some(game)) =>
-        val nextState = Play.discard(game, i)
-        Storage.saveGame(nextState)
-        displayGame(nextState)
+  @JSExport("reactToReceive")
+  def reactToReceive(i: Int): Unit = withLoadedGame { game =>
+    val nextState = Play.discard(game, i)
+    Storage.saveGame(nextState)
+    displayGame(nextState)
+  }
 
+  @JSExport("reactToDiscard")
+  def reactToDiscard(): Unit = withLoadedGame { game =>
+    val nextState = Play.noDiscardReaction(game)
+    Storage.saveGame(nextState)
+    displayGame(nextState)
+  }
+
+  private def withLoadedGame(f: Game => Unit): Unit = {
+    Storage.loadGame() match {
+      case Right(Some(game)) => f(game)
       case _ => HTML.render(NewGame.view(NewGameModel(), "No game data found"))
     }
   }
