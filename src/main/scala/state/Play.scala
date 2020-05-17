@@ -37,10 +37,6 @@ object Play {
 
   implicit class GameActions(game: Game) {
 
-    def activePlayer: Player = game.players(game.round.activePlayer)
-
-    def activeHand: Hand = activePlayer.hand
-
     def dealIfMoreTiles: Game = {
       game.wall.living.headOption match {
         case None => game.copy(state=NextRound)

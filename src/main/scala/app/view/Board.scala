@@ -13,13 +13,12 @@ object Board {
     )
 
     val controls = game.state match {
-      case model.Mahjong.NewGame => Seq(
-        div(cls := "col-md8")(
+      case model.Mahjong.NewGame => div(cls := "col-md8")(
           button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Start game")
         )
-      )
+
       case model.Mahjong.TileReceived =>
-        Seq(table(cls := "table")(
+        table(cls := "table")(
           tbody()(
             game.players(game.round.activePlayer).hand.concealedTiles.zipWithIndex.map { case (tile, i) =>
               tr()(
@@ -30,8 +29,17 @@ object Board {
               )
             }
           )
-        ))
-      case _ => Seq()
+        )
+
+      case model.Mahjong.TileDiscarded =>
+        if (game.activePlayer.wind == East) div(cls := "col-md8")(
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Continue")
+        )
+        else div(cls := "col-md8")( // TODO: react if not you
+          button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.next()")("Continue")
+        )
+
+      case _ => p()("Not implemented")
     }
 
     div(

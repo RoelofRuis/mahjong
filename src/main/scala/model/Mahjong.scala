@@ -75,7 +75,10 @@ object Mahjong {
     round: Round,
     wall: Wall,
     players: Players
-  )
+  ) {
+    def activePlayer: Player = players(round.activePlayer)
+    def activeHand: Hand = activePlayer.hand
+  }
 
   object Serializable {
     implicit val rwWindDirection: RW[WindDirection] = macroRW
