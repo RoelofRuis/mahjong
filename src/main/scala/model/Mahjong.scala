@@ -9,7 +9,7 @@ object Mahjong {
   sealed trait WindDirection
   final case object North extends WindDirection
   final case object South extends WindDirection
-  final case  object East extends WindDirection
+  final case object East extends WindDirection
   final case object West extends WindDirection
 
   sealed trait DragonColor
@@ -65,7 +65,17 @@ object Mahjong {
     activePlayer: WindDirection,
   )
 
+  sealed trait State
+  final case object NewGame extends State
+  final case object NextRound extends State
+  final case object NextTurn extends State
+  final case object TileReceived extends State
+  final case object TileDiscarded extends State
+  final case object KongDeclared extends State
+  final case object MahjongDeclared extends State
+
   final case class Game(
+    state: State,
     round: Round,
     wall: Wall,
     players: Players
@@ -88,6 +98,7 @@ object Mahjong {
     implicit val rwPlayer: RW[Player] = macroRW
     implicit val rwWall: RW[Wall] = macroRW
     implicit val rwRound: RW[Round] = macroRW
+    implicit val rwState: RW[State] = macroRW
     implicit val rwGame: RW[Game] = macroRW
   }
 

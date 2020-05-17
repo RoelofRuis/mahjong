@@ -14,8 +14,7 @@ object App {
   def main(args: Array[String]): Unit = {
     Storage.loadGame() match {
       case Right(Some(game)) =>
-        HTML.render(Board.view())
-        Board.draw(game)
+        displayGame(game)
       case Right(None) =>
         HTML.render(NewGame.view())
       case Left(err) =>
@@ -36,24 +35,28 @@ object App {
 
         val newGame = Initializer.newGame(playerMap, Random)
         Storage.saveGame(newGame)
-        HTML.render(Board.view())
-        Board.draw(newGame)
+        displayGame(newGame)
 
       case (model, Some(err)) => HTML.render(NewGame.view(model, err))
     }
   }
 
-  @JSExport("nextRound")
-  def nextRound(): Unit = {
+  @JSExport("next")
+  def next(): Unit = {
     Storage.loadGame() match {
       case Right(Some(game)) =>
-        val nextRound = Play.nextRound(game)
-        Storage.saveGame(nextRound)
-        HTML.render(Board.view())
-        Board.draw(nextRound)
+        val newGame = Play.transition(game)
+        Storage.saveGame(newGame)
+        displayGame(newGame)
 
-      case _ => HTML.render(NewGame.view())
+      case _ =>
+        HTML.render(NewGame.view(NewGameModel(), "No game data found"))
     }
+  }
+
+  private def displayGame(game: Game): Unit = {
+    HTML.render(Board.view(game))
+    Board.draw(game)
   }
 
 }

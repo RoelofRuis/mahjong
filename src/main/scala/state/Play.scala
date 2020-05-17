@@ -1,17 +1,39 @@
 package state
 
-import model.Mahjong.Game
+import model.Mahjong.{Game, NewGame, NextTurn, State}
+
+import scala.annotation.tailrec
 
 object Play {
 
-  def nextRound(game: Game): Game = {
-    game.players.foldRight(game) { case ((playerWind, player), state) =>
-      val tilesForPlayer = state.wall.living.take(14)
-      val newWall = state.wall.living.drop(14)
-      state.copy(
-        players=state.players.updated(playerWind, player.copy(hand=player.hand.copy(concealedTiles=tilesForPlayer))),
-        wall=state.wall.copy(living=newWall)
-      )
+  @tailrec
+  def transition(game: Game): Game = {
+    game.state match {
+      case NewGame =>
+        val nextState = game
+          .dealTiles
+          .setState(NextTurn)
+        transition(nextState)
+
+      case _ => game //TODO
+    }
+  }
+
+  implicit class GameActions(game: Game) {
+
+    def setState(state: State): Game = {
+      game.copy(state = state)
+    }
+
+    def dealTiles: Game = {
+      game.players.foldRight(game) { case ((playerWind, player), state) =>
+        val tilesForPlayer = state.wall.living.take(14)
+        val newWall = state.wall.living.drop(14)
+        state.copy(
+          players=state.players.updated(playerWind, player.copy(hand=player.hand.copy(concealedTiles=tilesForPlayer))),
+          wall=state.wall.copy(living=newWall)
+        )
+      }
     }
   }
 

@@ -1,0 +1,1 @@
+![state-space](MahjongStatespace.png)

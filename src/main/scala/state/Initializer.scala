@@ -46,7 +46,7 @@ object Initializer {
       WIND_ORDER(0)
     )
 
-    Game(round, wall, players)
+    Game(NewGame, round, wall, players)
   }
 
 }
