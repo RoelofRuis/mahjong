@@ -3,6 +3,7 @@ package app
 import app.view.NewGame.NewGameModel
 import app.view.{Board, HTML, NewGame}
 import model.Mahjong._
+import org.scalajs.dom
 import state.{Initializer, Play}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
@@ -19,6 +20,14 @@ object App {
         HTML.render(NewGame.view())
       case Left(err) =>
         HTML.render(NewGame.view(NewGameModel(), err))
+    }
+  }
+
+  @JSExport("reset")
+  def reset(): Unit = {
+    if (dom.window.confirm("This will reset the game. You will lose all current progress. Are you sure?")) {
+      Storage.removeGame()
+      main(Array())
     }
   }
 
