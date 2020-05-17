@@ -1,6 +1,6 @@
 package model
 
-object Messages {
+object Messages { // TODO: remove
 
   sealed trait NewStoneReaction
   sealed trait DiscardReaction
