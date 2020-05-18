@@ -1,17 +1,21 @@
 package app.view
 
+import app.App
 import app.view.Rendering._
 import model.Mahjong._
-import scalatags.Text
-import scalatags.Text.all._
+import org.scalajs.dom.html.Div
+import scalatags.JsDom.TypedTag
+import scalatags.JsDom.all._
 
 object Board {
 
-  def view(game: Game): Text.TypedTag[String] = {
+  def uitHetHart(): Unit = println("Ik hou van je!")
+
+  def view(game: Game): TypedTag[Div] = {
     val board = canvas(id := "board", widthA := 600, heightA := 600)
 
     val controls = game.state match {
-      case model.Mahjong.NewGame => button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.transition()")("Start game")
+      case model.Mahjong.NewGame => button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.transition() })("Start game")
 
       case model.Mahjong.TileReceived =>
         table(cls := "table")(
@@ -20,7 +24,7 @@ object Board {
               tr()(
                 th()(tile.toString),
                 th()(
-                  button(cls := "btn btn-sm btn-outline-secondary", onclick := s"Mahjong.reactToReceive($i)")("Discard")
+                  button(cls := "btn btn-sm btn-outline-secondary", onclick := { () => App.reactToReceive(i) })("Discard")
                 )
               )
             }
@@ -28,8 +32,8 @@ object Board {
         )
 
       case model.Mahjong.TileDiscarded =>
-        if (game.activePlayer.wind == East) button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.reactToDiscard()")("Continue")
-        else button(cls := "btn btn-sm btn-outline-success", onclick := "Mahjong.reactToDiscard()")("Continue") // TODO: react if not you
+        if (game.activePlayer.wind == East) button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.reactToDiscard() })("Continue")
+        else button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.reactToDiscard() })("Continue") // TODO: react if not you
 
       case _ => p()("Not implemented")
     }

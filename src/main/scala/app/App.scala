@@ -17,9 +17,9 @@ object App {
       case Right(Some(game)) =>
         displayGame(game)
       case Right(None) =>
-        HTML.render(NewGame.view())
+        HTML.addToPage(NewGame.view())
       case Left(err) =>
-        HTML.render(NewGame.view(NewGameModel(), err))
+        HTML.addToPage(NewGame.view(NewGameModel(), err))
     }
   }
 
@@ -46,7 +46,7 @@ object App {
         Storage.saveGame(newGame)
         displayGame(newGame)
 
-      case (model, Some(err)) => HTML.render(NewGame.view(model, err))
+      case (model, Some(err)) => HTML.addToPage(NewGame.view(model, err))
     }
   }
 
@@ -74,12 +74,12 @@ object App {
   private def withLoadedGame(f: Game => Unit): Unit = {
     Storage.loadGame() match {
       case Right(Some(game)) => f(game)
-      case _ => HTML.render(NewGame.view(NewGameModel(), "No game data found"))
+      case _ => HTML.addToPage(NewGame.view(NewGameModel(), "No game data found"))
     }
   }
 
   private def displayGame(game: Game): Unit = {
-    HTML.render(Board.view(game))
+    HTML.addToPage(Board.view(game))
     Board.draw(game)
   }
 

@@ -1,12 +1,15 @@
 package app.view
 
+import org.scalajs.dom.html.Div
 import org.scalajs.dom.{document, html}
-import scalatags.Text
+import scalatags.JsDom
 
 object HTML {
 
-  def render(content: Text.TypedTag[String], rootId: String = "root") = {
-    document.getElementById("root").innerHTML = content.render
+  def addToPage(content: JsDom.TypedTag[Div], rootId: String = "root"): Unit = {
+    val rootNode = document.getElementById(rootId)
+    rootNode.innerHTML = ""
+    rootNode.appendChild(content.render)
   }
 
   def inputValue(id: String): Option[String] = {

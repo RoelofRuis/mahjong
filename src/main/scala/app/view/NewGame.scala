@@ -1,7 +1,9 @@
 package app.view
 
-import scalatags.Text
-import scalatags.Text.all._
+import app.App
+import org.scalajs.dom.html.Div
+import scalatags.JsDom.TypedTag
+import scalatags.JsDom.all._
 
 object NewGame {
 
@@ -26,7 +28,7 @@ object NewGame {
     else (model, None)
   }
 
-  def view(model: NewGameModel = NewGameModel(), error: String = ""): Text.TypedTag[String] = {
+  def view(model: NewGameModel = NewGameModel(), error: String = ""): TypedTag[Div] = {
     div(cls := "form")(
       div(cls := "form-group")(
         label(`for` := "player-1")("Player 1 (East)"),
@@ -45,7 +47,7 @@ object NewGame {
         input(cls := "form-control", id := "player-4", value := model.north.getOrElse(""))
       ),
       if (error.nonEmpty) div(cls := "alert alert-danger")(error) else div(),
-      button(cls := "btn btn-success", onclick := "Mahjong.startNewGame()")("New Game")
+      button(cls := "btn btn-success", onclick := { () => App.startNewGame() })("New Game")
     )
   }
 
