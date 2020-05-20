@@ -1,13 +1,17 @@
 package app.view.component
 
-import Render._
 import model.Mahjong._
+import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
+import org.scalajs.dom.html.Canvas
 
 object Board {
 
+  import model.Text.WindDirectionText
+
   def draw: Game => Unit = game => {
-    val board = on("board")
+    val canvas = dom.document.getElementById("board").asInstanceOf[Canvas]
+    val board = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
     board.translate(0, 0)
 
     board.fill("green")
@@ -27,6 +31,12 @@ object Board {
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
+
+    def fill(color: String): Unit = {
+      ctx.translate(0, 0)
+      ctx.fillStyle = color
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    }
 
     def drawWall(size: Int): Unit = {
       val wallLengths = Range(0, 4).foldRight((Seq[Int](), Math.ceil(size / 2.0).toInt)) { case (_, (seq, remaining)) =>
@@ -64,7 +74,9 @@ object Board {
         ctx.drawTile(-offset + (pos * 12), 276, tile)
       }
       hand.discards.zipWithIndex.foreach { case (tile, pos) =>
-        ctx.drawTile(100 + (pos * 12), 150, tile)
+        val row: Int = pos / 6
+        val col: Int = pos % 6
+        ctx.drawTile(100 + (col * 12), 150 + (row * 19), tile)
       }
     }
 

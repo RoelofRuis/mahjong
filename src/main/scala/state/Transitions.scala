@@ -21,7 +21,7 @@ object Transitions {
           .activePlayerDiscards(i)
 
       case (TileDiscarded, DoNothing) =>
-        game.copy(state=NextTurn)
+        game.copy(state=NextTurn,round=game.round.copy(activePlayer=game.nextPlayerWind))
 
       case _ => game
     }
