@@ -7,9 +7,11 @@ import scala.util.Random
 
 object Transitions {
 
+  import MahjongOps._
+
   def react(game: Game, action: Action): Game = {
     (game.state, action) match {
-      case (_, Restart) => Game(Random)
+      case (_, Restart) => Mahjong.newGame(Random)
       case (Uninitialized, NewGame(playerNames)) => game.seatPlayers(playerNames).dealStartingHands
       case (NextTurn, DealTile) => game.dealIfMoreTiles
       case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)
@@ -53,7 +55,7 @@ object Transitions {
               Hand(),
             ))
         }
-      }.map(player => player.wind -> player).toMap
+      }.map(player => player.seatWind -> player).toMap
       game.copy(players=players)
     }
 

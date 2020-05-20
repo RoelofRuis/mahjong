@@ -2,8 +2,7 @@ package app
 
 import app.view.{HTML, View}
 import model.Actions.Action
-import model.Mahjong.Game
-import model.{ActionChain, Transitions}
+import model.{ActionChain, Mahjong, Transitions}
 import org.scalajs.dom
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
@@ -14,10 +13,10 @@ object App {
 
   private var model = Storage.load() match {
     case Right(Some(game)) => game
-    case Right(None) => Game(Random)
+    case Right(None) => Mahjong.newGame(Random)
     case Left(err) =>
       dom.window.alert(err)
-      Game(Random)
+      Mahjong.newGame(Random)
   }
 
   def main(args: Array[String]): Unit = render()

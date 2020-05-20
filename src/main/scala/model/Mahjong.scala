@@ -57,7 +57,7 @@ object Mahjong {
   final case class Player(
     name: String,
     score: Int,
-    wind: WindDirection,
+    seatWind: WindDirection,
     hand: Hand = Hand(),
   )
 
@@ -87,23 +87,17 @@ object Mahjong {
     players: Players,
     round: Round,
     wall: Wall,
-  ) {
-    def activePlayer: Player = players(round.activePlayer) // TODO: this is dangerous as when there are no players..!
-    def nextPlayerWind: WindDirection = WIND_ORDER((WIND_ORDER.indexOf(round.activePlayer) + 1) % 4)
-    def activeHand: Hand = activePlayer.hand
-  }
+  )
 
-  object Game {
-    def apply(random: Random): Game = {
-      val shuffled = random.shuffle(TILESET)
+  def newGame(random: Random): Game = {
+    val shuffled = random.shuffle(TILESET)
 
-      Game(
-        Uninitialized,
-        Map(),
-        Round(WIND_ORDER(0), WIND_ORDER(0), 0),
-        Wall(shuffled.drop(14), shuffled.take(14))
-      )
-    }
+    Game(
+      Uninitialized,
+      Map(),
+      Round(WIND_ORDER(0), WIND_ORDER(0), 0),
+      Wall(shuffled.drop(14), shuffled.take(14))
+    )
   }
 
   object Serializable {

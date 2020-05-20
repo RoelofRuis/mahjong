@@ -59,7 +59,7 @@ object Board {
           drawPlayerHand(player.hand)
 
           ctx.beginPath()
-          if (player.wind == activePlayer) ctx.font = "bold 12px monospace"
+          if (player.seatWind == activePlayer) ctx.font = "bold 12px monospace"
           else ctx.font = "12px monospace"
 
           ctx.fillStyle = "black"
