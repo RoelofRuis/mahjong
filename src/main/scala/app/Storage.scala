@@ -12,25 +12,25 @@ object Storage {
 
   private val GAME_KEY = "GAME"
 
-  def saveGame(game: Game): Unit = {
+  def save(game: Game): Unit = {
     val string = write(game)
     dom.window.localStorage.setItem(GAME_KEY, string)
   }
 
-  def loadGame(): Either[String, Option[Game]] = {
+  def load(): Either[String, Option[Game]] = {
     Option(dom.window.localStorage.getItem(GAME_KEY)) match {
       case None => Right(None)
       case Some(string) =>
         Try(read[Game](string)) match {
           case Success(game) => Right(Some(game))
           case Failure(_) =>
-            removeGame()
+            remove()
             Left("Unable to load game: Corrupt game state")
         }
     }
   }
 
-  def removeGame(): Unit = {
+  def remove(): Unit = {
     dom.window.localStorage.removeItem(GAME_KEY)
   }
 

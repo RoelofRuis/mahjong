@@ -1,23 +1,29 @@
-package app.view
+package app.view.component
 
+import Render._
 import model.Mahjong._
-import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
-import org.scalajs.dom.html.Canvas
 
-object Rendering {
+object Board {
 
-  def renderOn(id: String): CanvasRenderingContext2D = {
-    val canvas = dom.document.getElementById(id).asInstanceOf[Canvas]
-    canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-  }
+  def draw: Game => Unit = game => {
+    val board = on("board")
+    board.translate(0, 0)
 
-  implicit class Render2DOps(ctx: CanvasRenderingContext2D) {
-    def fill(color: String): Unit = {
-      ctx.translate(0, 0)
-      ctx.fillStyle = color
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    }
+    board.fill("green")
+
+    board.translate(300.5, 300.5)
+
+    board.drawCompass(game.round)
+    board.drawWall(game.wall.living.length + game.wall.dead.length)
+
+    board.drawPlayer(game.players.get(East), game.round.activePlayer)
+    board.rotate(Math.PI * 0.5)
+    board.drawPlayer(game.players.get(South), game.round.activePlayer)
+    board.rotate(Math.PI * 0.5)
+    board.drawPlayer(game.players.get(West), game.round.activePlayer)
+    board.rotate(Math.PI * 0.5)
+    board.drawPlayer(game.players.get(North), game.round.activePlayer)
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
@@ -193,15 +199,5 @@ object Rendering {
 
   }
 
-  implicit class WindDirectionLetters(windDirection: WindDirection) {
-    def asChar: String = {
-      windDirection match {
-        case West => "W"
-        case East => "E"
-        case North => "N"
-        case South => "S"
-      }
-    }
-  }
-
 }
+

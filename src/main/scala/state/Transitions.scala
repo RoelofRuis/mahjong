@@ -1,40 +1,38 @@
 package state
 
+import model.Actions.{Action, NewGame}
 import model.Mahjong._
 
-import scala.annotation.tailrec
+object Transitions {
 
-object Play {
-
-  @tailrec
-  def transition(game: Game): Game = {
-    game.state match {
-      case NewGame => transition(game.dealStartingHands)
-
-      case NextRound =>
-        // tally score
-        ??? // If more rounds
-
-      case NextTurn => transition(game.dealIfMoreTiles)
-
-      case TileReceived => game
-
-      case _ => ???
+  def react(game: Game, action: Action): Game = {
+    (game.state, action) match {
+      case (Uninitialized, NewGame(playerNames)) =>
+        game
+          .seatPlayers(playerNames)
+          .dealStartingHands
+      case _ => game
     }
   }
 
-  def discard(game: Game, tileIndex: Int): Game = {
-    game.activePlayerDiscards(tileIndex)
-  }
-
-  def noDiscardReaction(game: Game): Game = {
-    transition(game.copy(
-      state=NextTurn,
-      round=game.round.copy(activePlayer=game.nextPlayerWind)
-    ))
-  }
-
   implicit class GameActions(game: Game) {
+
+    def seatPlayers(playerNames: Map[WindDirection, String]): Game = {
+      val players = WIND_ORDER.flatMap { windDirection =>
+        playerNames.get(windDirection) match {
+          case None => None
+          case Some(name) =>
+            Some(Player(
+              name,
+              0,
+              windDirection,
+              Hand(),
+            ))
+        }
+      }.map(player => player.wind -> player).toMap
+
+      game.copy(players=players)
+    }
 
     def activePlayerDiscards(tileIndex: Int): Game = {
       val newHand = game.activeHand.copy(

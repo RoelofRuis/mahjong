@@ -3,6 +3,7 @@ package model
 import upickle.default.{macroRW, ReadWriter => RW}
 
 import scala.collection.immutable.{Map, Vector}
+import scala.util.Random
 
 object Mahjong {
 
@@ -34,6 +35,16 @@ object Mahjong {
 
   final val WIND_ORDER: Vector[WindDirection] = Vector[WindDirection](East, South, West, North)
 
+  lazy val TILESET: Vector[Tile] = {
+    val bamboos = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => SuitedTile(Bamboos, i))
+    val circles = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => SuitedTile(Circles, i))
+    val characters = (1 to 9).flatMap(Vector.fill(4)(_)).map(i => SuitedTile(Characters, i))
+    val dragons = Vector(Red, White, Green).flatMap(Vector.fill(4)(_)).map(c => DragonTile(c))
+    val winds = Vector(North, South, East, West).flatMap(Vector.fill(4)(_)).map(d => WindTile(d))
+
+    (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
+  }
+
   final case class Hand(
     concealedTiles: Vector[Tile] = Vector[Tile](),
     exposedCombinations: Vector[Combination] = Vector[Combination](),
@@ -62,7 +73,7 @@ object Mahjong {
   )
 
   sealed trait State
-  final case object NewGame extends State
+  final case object Uninitialized extends State
   final case object NextRound extends State
   final case object NextTurn extends State
   final case object TileReceived extends State
@@ -72,13 +83,26 @@ object Mahjong {
 
   final case class Game(
     state: State,
+    players: Players,
     round: Round,
     wall: Wall,
-    players: Players
   ) {
-    def activePlayer: Player = players(round.activePlayer)
+    def activePlayer: Player = players(round.activePlayer) // TODO: this is dangerous as when there are no players..!
     def nextPlayerWind: WindDirection = WIND_ORDER((WIND_ORDER.indexOf(round.activePlayer) + 1) % 4)
     def activeHand: Hand = activePlayer.hand
+  }
+
+  object Game {
+    def apply(random: Random): Game = {
+      val shuffled = random.shuffle(TILESET)
+
+      Game(
+        Uninitialized,
+        Map(),
+        Round(WIND_ORDER(0), WIND_ORDER(0), 0),
+        Wall(shuffled.drop(14), shuffled.take(14))
+      )
+    }
   }
 
   object Serializable {

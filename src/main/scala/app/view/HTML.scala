@@ -1,12 +1,12 @@
 package app.view
 
-import org.scalajs.dom.html.Div
+import org.scalajs.dom.raw.HTMLElement
 import org.scalajs.dom.{document, html}
 import scalatags.JsDom
 
 object HTML {
 
-  def addToPage(content: JsDom.TypedTag[Div], rootId: String = "root"): Unit = {
+  def addToPage(content: JsDom.TypedTag[HTMLElement], rootId: String = "root"): Unit = {
     val rootNode = document.getElementById(rootId)
     rootNode.innerHTML = ""
     rootNode.appendChild(content.render)
