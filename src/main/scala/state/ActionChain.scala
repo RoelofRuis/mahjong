@@ -1,6 +1,6 @@
 package state
 
-import model.Actions.{Action, DealTile}
+import model.Actions.{Action, DealTile, TallyScores}
 import model.Mahjong._
 
 object ActionChain {
@@ -8,6 +8,7 @@ object ActionChain {
   def getNext(model: Game): Option[Action] = {
     model.state match {
       case NextTurn => Some(DealTile)
+      case NextRound => Some(TallyScores)
       case _ => None
     }
   }

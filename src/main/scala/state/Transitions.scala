@@ -1,6 +1,6 @@
 package state
 
-import model.Actions.{Action, DealTile, Discard, DoNothing, NewGame}
+import model.Actions.{Action, DealTile, Discard, DoNothing, NewGame, TallyScores}
 import model.Mahjong._
 
 object Transitions {
@@ -19,6 +19,9 @@ object Transitions {
       case (TileReceived, Discard(i)) =>
         game
           .activePlayerDiscards(i)
+
+      case (NextRound, TallyScores) =>
+        ???
 
       case (TileDiscarded, DoNothing) =>
         game.copy(state=NextTurn,round=game.round.copy(activePlayer=game.nextPlayerWind))
