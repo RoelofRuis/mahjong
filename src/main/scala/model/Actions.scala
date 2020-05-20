@@ -8,6 +8,7 @@ object Actions {
 
   case class NewGame(players: Map[WindDirection, String]) extends Action
   case object Restart extends Action
+  case object DealTile extends Action
 
   case class Discard(tilePos: Int) extends Action
   case class DeclareConcealedKong(tilePos0: Int, tilePos1: Int, tilePos2: Int, tilePos3: Int) extends Action

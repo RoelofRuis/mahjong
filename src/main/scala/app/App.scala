@@ -4,7 +4,7 @@ import app.view.{HTML, View}
 import model.Actions.Action
 import model.Mahjong.Game
 import org.scalajs.dom
-import state.Transitions
+import state.{ActionChain, Transitions}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.Random
@@ -20,21 +20,23 @@ object App {
       Game(Random)
   }
 
-  def main(args: Array[String]): Unit = view()
+  def main(args: Array[String]): Unit = render()
 
   @JSExport("react")
   def react(action: Action): Unit = {
     model = Transitions.react(model, action)
-
-    view()
-
-    Storage.save(model)
+    render()
   }
 
-  private def view(): Unit = {
-    val (view, draw) = View.render(model)
-    HTML.addToPage(view)
-    draw(model)
+  private def render(): Unit = {
+    ActionChain.getNext(model) match {
+      case Some(a) => react(a)
+      case None =>
+        val (view, draw) = View.render(model)
+        HTML.addToPage(view)
+        draw(model)
+        Storage.save(model)
+    }
   }
 
 }

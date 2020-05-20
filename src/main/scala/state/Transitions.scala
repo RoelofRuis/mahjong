@@ -1,6 +1,6 @@
 package state
 
-import model.Actions.{Action, NewGame}
+import model.Actions.{Action, DealTile, Discard, DoNothing, NewGame}
 import model.Mahjong._
 
 object Transitions {
@@ -11,6 +11,18 @@ object Transitions {
         game
           .seatPlayers(playerNames)
           .dealStartingHands
+
+      case (NextTurn, DealTile) =>
+        game
+          .dealIfMoreTiles
+
+      case (TileReceived, Discard(i)) =>
+        game
+          .activePlayerDiscards(i)
+
+      case (TileDiscarded, DoNothing) =>
+        game.copy(state=NextTurn)
+
       case _ => game
     }
   }
@@ -30,7 +42,6 @@ object Transitions {
             ))
         }
       }.map(player => player.wind -> player).toMap
-
       game.copy(players=players)
     }
 
