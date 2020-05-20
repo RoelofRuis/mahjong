@@ -3,8 +3,8 @@ package app
 import app.view.{HTML, View}
 import model.Actions.Action
 import model.Mahjong.Game
+import model.{ActionChain, Transitions}
 import org.scalajs.dom
-import state.{ActionChain, Transitions}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import scala.util.Random

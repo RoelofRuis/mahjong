@@ -1,36 +1,44 @@
-package state
+package model
 
-import model.Actions.{Action, DealTile, Discard, DoNothing, NewGame, TallyScores}
+import model.Actions._
 import model.Mahjong._
+
+import scala.util.Random
 
 object Transitions {
 
   def react(game: Game, action: Action): Game = {
     (game.state, action) match {
-      case (Uninitialized, NewGame(playerNames)) =>
-        game
-          .seatPlayers(playerNames)
-          .dealStartingHands
-
-      case (NextTurn, DealTile) =>
-        game
-          .dealIfMoreTiles
-
-      case (TileReceived, Discard(i)) =>
-        game
-          .activePlayerDiscards(i)
-
-      case (NextRound, TallyScores) =>
-        ???
-
-      case (TileDiscarded, DoNothing) =>
-        game.copy(state=NextTurn,round=game.round.copy(activePlayer=game.nextPlayerWind))
+      case (Uninitialized, NewGame(playerNames)) => game.seatPlayers(playerNames).dealStartingHands
+      case (NextTurn, DealTile) => game.dealIfMoreTiles
+      case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)
+      case (NextRound, TallyScores) => game.tallyScores.nextRound.dealStartingHands
+      case (TileDiscarded, DoNothing) => game.copy(state=NextTurn,round=game.round.copy(activePlayer=game.nextPlayerWind))
 
       case _ => game
     }
   }
 
   implicit class GameActions(game: Game) {
+
+    def tallyScores: Game = game // TODO: implement
+
+    def nextRound: Game = {
+      if (game.round.prevalentWind == WIND_ORDER.last) game.copy(state=Ended)
+      else {
+        val tiles = game.wall.dead ++ game.wall.living ++ game.players.flatMap { case (_, p) =>
+          p.hand.concealedTiles ++ p.hand.discards
+        }
+
+        val shuffled = Random.shuffle(tiles)
+
+        game.copy(
+          wall=Wall(shuffled.drop(14), shuffled.take(14)),
+          players=game.players.map { case (d, p) => d -> p.copy(hand=Hand()) },
+          round=Round(WIND_ORDER(WIND_ORDER.indexOf(game.round.prevalentWind) + 1), WIND_ORDER(0), 0)
+        )
+      }
+    }
 
     def seatPlayers(playerNames: Map[WindDirection, String]): Game = {
       val players = WIND_ORDER.flatMap { windDirection =>

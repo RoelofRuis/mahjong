@@ -1,4 +1,4 @@
-package state
+package model
 
 import model.Actions.{Action, DealTile, TallyScores}
 import model.Mahjong._

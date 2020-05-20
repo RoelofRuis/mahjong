@@ -10,7 +10,7 @@ import scalatags.JsDom.all._
 
 object NewGameForm {
 
-  private def readPlayers: Option[NewGame] = {
+  private def readForm: Option[NewGame] = {
     val east  = HTML.inputValue("player-1").map((East, _))
     val south = HTML.inputValue("player-2").map((South, _))
     val west  = HTML.inputValue("player-3").map((West, _))
@@ -50,7 +50,7 @@ object NewGameForm {
         input(cls := "form-control", id := "player-4", value := model.players.get(North).map(_.name).getOrElse(""))
       ),
       div(id := "player-form-error")(),
-      button(cls := "btn btn-success", onclick := { () => readPlayers.foreach(App.react) })("New Game")
+      button(cls := "btn btn-success", onclick := { () => readForm.foreach(App.react) })("New Game")
     )
   }
 

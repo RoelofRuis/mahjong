@@ -80,6 +80,7 @@ object Mahjong {
   final case object TileDiscarded extends State
   final case object KongDeclared extends State
   final case object MahjongDeclared extends State
+  final case object Ended extends State
 
   final case class Game(
     state: State,

@@ -16,7 +16,7 @@ object View {
       case Uninitialized => NewGameForm.render(model)
       case TileReceived => TileReceivedForm.render(model)
       case TileDiscarded => TileDiscardedForm.render(model)
-      case _ => p()(s"Not implemented [${model.state}]")
+      case _ => p()(s"Not implemented [${model}]")
     }
 
     val view = div(cls := "row")(
