@@ -9,6 +9,7 @@ object Transitions {
 
   def react(game: Game, action: Action): Game = {
     (game.state, action) match {
+      case (_, Restart) => Game(Random)
       case (Uninitialized, NewGame(playerNames)) => game.seatPlayers(playerNames).dealStartingHands
       case (NextTurn, DealTile) => game.dealIfMoreTiles
       case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)

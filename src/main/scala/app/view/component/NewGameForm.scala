@@ -23,7 +23,7 @@ object NewGameForm {
 
     error match {
       case Some(err) =>
-        HTML.addToPage(div(cls := "alert alert-danger")(err), "player-form-error")
+        HTML.addToPage(Map("player-form-error" -> div(cls := "alert alert-danger")(err)))
         None
 
       case None =>

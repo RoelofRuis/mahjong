@@ -6,10 +6,12 @@ import scalatags.JsDom
 
 object HTML {
 
-  def addToPage(content: JsDom.TypedTag[HTMLElement], rootId: String = "root"): Unit = {
-    val rootNode = document.getElementById(rootId)
-    rootNode.innerHTML = ""
-    rootNode.appendChild(content.render)
+  def addToPage(content: Map[String, JsDom.TypedTag[HTMLElement]]): Unit = {
+    content.foreach { case (rootId, content) =>
+      val rootNode = document.getElementById(rootId)
+      rootNode.innerHTML = ""
+      rootNode.appendChild(content.render)
+    }
   }
 
   def inputValue(id: String): Option[String] = {
