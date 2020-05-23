@@ -16,32 +16,13 @@ object Transitions {
       case (NextTurn, DealTile) => game.dealIfMoreTiles
       case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)
       case (NextRound, TallyScores) => game.tallyScores.nextRound.dealStartingHands
-      case (TileDiscarded, DoNothing) => game.copy(state=NextTurn,round=game.round.copy(activeSeat=game.nextSeat))
+      case (TileDiscarded, DoNothing) => game.nextSeat.setState(NextTurn)
 
       case _ => game
     }
   }
 
   implicit class GameActions(game: Game) {
-
-    def tallyScores: Game = game // TODO: implement
-
-    def nextRound: Game = {
-      if (game.round.prevalentWind == WIND_ORDER.last) game.copy(state=Ended)
-      else {
-        val tiles = game.wall.dead ++ game.wall.living ++ game.players.flatMap { case (_, p) =>
-          p.hand.concealedTiles ++ p.hand.discards
-        }
-
-        val shuffled = Random.shuffle(tiles)
-
-        game.copy(
-          wall=Wall(shuffled.drop(14), shuffled.take(14)),
-          players=game.players.map { case (d, p) => d -> p.copy(hand=Hand()) },
-          round=Round(WIND_ORDER(WIND_ORDER.indexOf(game.round.prevalentWind) + 1), 0, 0)
-        )
-      }
-    }
 
     def seatPlayers(playerNames: Map[Seat, (PlayerType, String)]): Game = {
       val players = Range.inclusive(0, 3).flatMap { seat =>
@@ -52,47 +33,68 @@ object Transitions {
               name,
               0,
               WIND_ORDER(seat),
-              Hand(),
               playerType,
+              Vector(),
+              Vector(),
+              Vector(),
+              Vector(),
             ))
         }
       }.toMap
       game.copy(players=players)
     }
 
-    def activePlayerDiscards(tileIndex: Int): Game = {
-      val newHand = game.activeHand.copy(
-        concealedTiles=game.activeHand.concealedTiles.zipWithIndex.filter { case (_, i) => i != tileIndex }.map(_._1),
-        discards=game.activeHand.discards :+ game.activeHand.concealedTiles(tileIndex)
-      )
-
-      game.copy(
-        state=TileDiscarded,
-        players=game.players.updated(game.round.activeSeat, game.activePlayer.copy(hand=newHand))
-      )
+    def dealStartingHands: Game = {
+      game
+        .players
+        .keys
+        .foldRight(game) { case (playerSeat, state) =>
+          val (tiles, newWall) = game.takeTiles(13)
+          state.copy(players=game.addPlayerTiles(playerSeat, tiles), wall=newWall)
+        }
+        .setState(NextTurn)
     }
 
     def dealIfMoreTiles: Game = {
-      game.wall.living.headOption match {
-        case None => game.copy(state=NextRound)
-        case Some(tile) =>
-          val newHand = game.activePlayer.hand.copy(concealedTiles=game.activePlayer.hand.concealedTiles :+ tile)
+      game.takeTiles(1) match {
+        case (tile, _) if tile.isEmpty => game.setState(NextRound)
+        case (tile, newWall) =>
           game.copy(
             state=TileReceived,
-            players=game.players.updated(game.round.activeSeat, game.activePlayer.copy(hand=newHand)),
-            wall=game.wall.copy(living=game.wall.living.tail)
+            players=game.addPlayerTiles(game.activeSeat, tile),
+            wall=newWall
           )
       }
     }
 
-    def dealStartingHands: Game = {
-      game.players.foldRight(game) { case ((playerWind, player), state) =>
-        val tilesForPlayer = state.wall.living.take(13)
-        val newWall = state.wall.living.drop(13)
-        state.copy(
-          state=NextTurn,
-          players=state.players.updated(playerWind, player.copy(hand=player.hand.copy(concealedTiles=tilesForPlayer))),
-          wall=state.wall.copy(living=newWall)
+    def activePlayerDiscards(tileIndex: Int): Game = {
+      game.copy(
+        state=TileDiscarded,
+        players=game.playerDiscards(game.activeSeat, tileIndex),
+      )
+    }
+
+    def tallyScores: Game = game // TODO: implement
+
+    def nextRound: Game = {
+      if (game.prevalentWind == WIND_ORDER.last) game.copy(state=Ended)
+      else {
+        val tiles = game.wall.dead ++ game.wall.living ++ game.players.flatMap { case (_, p) =>
+          p.concealedTiles ++ p.discards
+        }
+
+        val shuffled = Random.shuffle(tiles)
+
+        game.copy(
+          wall=Wall(shuffled.drop(14), shuffled.take(14)),
+          players=game.players.map { case (d, p) => d -> p.copy(
+            concealedTiles=Vector(),
+            exposedCombinations=Vector(),
+            concealedCombinations=Vector(),
+            discards=Vector(),
+          ) },
+          prevalentWind=WIND_ORDER(WIND_ORDER.indexOf(game.prevalentWind) + 1),
+          activeSeat=0,
         )
       }
     }

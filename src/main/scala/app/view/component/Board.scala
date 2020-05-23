@@ -18,20 +18,20 @@ object Board {
 
     board.translate(300.5, 300.5)
 
-    val activeSeatRotation = -game.round.activeSeat * Math.PI * 0.5
+    val activeSeatRotation = -game.activeSeat * Math.PI * 0.5
 
     board.rotate(activeSeatRotation)
 
-    board.drawCompass(game.round)
+    board.drawCompass(game)
     board.drawWall(game.wall.living.length + game.wall.dead.length)
 
-    board.drawPlayer(game.players.get(0), game.round.activeSeat == 0)
+    board.drawPlayer(game.players.get(0), game.activeSeat == 0)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(1), game.round.activeSeat == 1)
+    board.drawPlayer(game.players.get(1), game.activeSeat == 1)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(2), game.round.activeSeat == 2)
+    board.drawPlayer(game.players.get(2), game.activeSeat == 2)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(3), game.round.activeSeat == 3)
+    board.drawPlayer(game.players.get(3), game.activeSeat == 3)
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
@@ -60,7 +60,7 @@ object Board {
       player match {
         case None =>
         case Some(player) =>
-          drawPlayerHand(player.hand, player.playerType == HumanControlled)
+          drawPlayerHand(player, player.playerType == HumanControlled)
 
           ctx.beginPath()
           if (isActive) ctx.font = "bold 12px monospace"
@@ -72,20 +72,20 @@ object Board {
       }
     }
 
-    def drawPlayerHand(hand: Hand, displayConcealed: Boolean): Unit = {
-      val offset = (hand.concealedTiles.length * 6)
-      hand.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
+    def drawPlayerHand(player: Player, displayConcealed: Boolean): Unit = {
+      val offset = (player.concealedTiles.length * 6)
+      player.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
         if (displayConcealed) ctx.drawTile(-offset + (pos * 12), 276, tile)
         else drawTileOutline(-offset + (pos * 12), 276)
       }
-      hand.discards.zipWithIndex.foreach { case (tile, pos) =>
+      player.discards.zipWithIndex.foreach { case (tile, pos) =>
         val row: Int = pos / 6
         val col: Int = pos % 6
         ctx.drawTile(100 + (col * 12), 150 + (row * 19), tile)
       }
     }
 
-    def drawCompass(round: Round): Unit = {
+    def drawCompass(game: Game): Unit = {
       val RADIUS = 60
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
@@ -111,7 +111,7 @@ object Board {
       }
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
-      ctx.fillText(round.prevalentWind.asChar, -6, 6)
+      ctx.fillText(game.prevalentWind.asChar, -6, 6)
       ctx.stroke()
     }
 

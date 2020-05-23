@@ -45,13 +45,6 @@ object Mahjong {
     (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
   }
 
-  final case class Hand(
-    concealedTiles: Vector[Tile] = Vector[Tile](),
-    exposedCombinations: Vector[Combination] = Vector[Combination](),
-    concealedCombinations: Vector[Combination] = Vector[Combination](),
-    discards: Vector[Tile] = Vector[Tile]()
-  )
-
   type Seat = Int
 
   type Players = Map[Seat, Player]
@@ -64,19 +57,16 @@ object Mahjong {
     name: String,
     score: Int,
     seatWind: WindDirection,
-    hand: Hand = Hand(),
-    playerType: PlayerType
+    playerType: PlayerType,
+    concealedTiles: Vector[Tile] = Vector[Tile](),
+    exposedCombinations: Vector[Combination] = Vector[Combination](),
+    concealedCombinations: Vector[Combination] = Vector[Combination](),
+    discards: Vector[Tile] = Vector[Tile]()
   )
 
   final case class Wall(
     living: Vector[Tile],
     dead: Vector[Tile]
-  )
-
-  final case class Round(
-    prevalentWind: WindDirection,
-    activeSeat: Seat,
-    turn: Int,
   )
 
   sealed trait State
@@ -91,9 +81,10 @@ object Mahjong {
 
   final case class Game(
     state: State,
-    players: Players,
-    round: Round,
     wall: Wall,
+    players: Players,
+    prevalentWind: WindDirection,
+    activeSeat: Seat,
   )
 
   def newGame(random: Random): Game = {
@@ -101,9 +92,10 @@ object Mahjong {
 
     Game(
       Uninitialized,
+      Wall(shuffled.drop(14), shuffled.take(14)),
       Map(),
-      Round(WIND_ORDER(0), 0, 0),
-      Wall(shuffled.drop(14), shuffled.take(14))
+      WIND_ORDER(0),
+      0
     )
   }
 
@@ -119,11 +111,9 @@ object Mahjong {
     implicit val rwKong: RW[Kong] = macroRW
     implicit val rwChow: RW[Chow] = macroRW
     implicit val rwCombination: RW[Combination] = macroRW
-    implicit val rwHand: RW[Hand] = macroRW
     implicit val rwPlayerType: RW[PlayerType] = macroRW
     implicit val rwPlayer: RW[Player] = macroRW
     implicit val rwWall: RW[Wall] = macroRW
-    implicit val rwRound: RW[Round] = macroRW
     implicit val rwState: RW[State] = macroRW
     implicit val rwGame: RW[Game] = macroRW
   }
