@@ -60,7 +60,7 @@ object Board {
       player match {
         case None =>
         case Some(player) =>
-          drawPlayerHand(player.hand)
+          drawPlayerHand(player.hand, player.playerType == HumanControlled)
 
           ctx.beginPath()
           if (isActive) ctx.font = "bold 12px monospace"
@@ -72,10 +72,11 @@ object Board {
       }
     }
 
-    def drawPlayerHand(hand: Hand): Unit = {
+    def drawPlayerHand(hand: Hand, displayConcealed: Boolean): Unit = {
       val offset = (hand.concealedTiles.length * 6)
       hand.concealedTiles.zipWithIndex.foreach { case (tile, pos) =>
-        ctx.drawTile(-offset + (pos * 12), 276, tile)
+        if (displayConcealed) ctx.drawTile(-offset + (pos * 12), 276, tile)
+        else drawTileOutline(-offset + (pos * 12), 276)
       }
       hand.discards.zipWithIndex.foreach { case (tile, pos) =>
         val row: Int = pos / 6
