@@ -11,12 +11,33 @@ object Transitions {
 
   def react(game: Game, action: Action): Game = {
     (game.state, action) match {
-      case (_, Restart) => Mahjong.newGame(Random)
-      case (Uninitialized, NewGame(playerData)) => game.seatPlayers(playerData).dealStartingHands
-      case (NextTurn, DealTile) => game.dealIfMoreTiles
-      case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)
-      case (NextRound, TallyScores) => game.tallyScores.nextRound.dealStartingHands
-      case (TileDiscarded, DoNothing) => game.nextSeat.setState(NextTurn)
+      case (_, Restart) =>
+        Mahjong.newGame(Random)
+
+      case (Uninitialized, NewGame(playerData)) =>
+        game
+          .seatPlayers(playerData)
+          .dealStartingHands
+          .setState(NextTurn)
+
+      case (NextTurn, DealTile) =>
+        game
+          .dealIfMoreTiles
+          .setState(TileReceived)
+
+      case (TileReceived, Discard(i)) =>
+        game
+          .activePlayerDiscards(i)
+          .setState(TileDiscarded)
+
+      case (NextRound, TallyScores) =>
+        if (game.prevalentWind == WIND_ORDER.last) game.tallyScores.setState(Ended)
+        else game.tallyScores.nextRound.dealStartingHands.setState(NextTurn)
+
+      case (TileDiscarded, DoNothing) =>
+        game
+          .nextSeat
+          .setState(NextTurn)
 
       case _ => game
     }
@@ -49,10 +70,12 @@ object Transitions {
         .players
         .keys
         .foldRight(game) { case (playerSeat, state) =>
-          val (tiles, newWall) = game.takeTiles(13)
-          state.copy(players=game.addPlayerTiles(playerSeat, tiles), wall=newWall)
+          val (tiles, newWall) = state.takeTiles(13)
+          state.copy(
+            players=state.addPlayerTiles(playerSeat, tiles),
+            wall=newWall
+          )
         }
-        .setState(NextTurn)
     }
 
     def dealIfMoreTiles: Game = {
@@ -60,7 +83,6 @@ object Transitions {
         case (tile, _) if tile.isEmpty => game.setState(NextRound)
         case (tile, newWall) =>
           game.copy(
-            state=TileReceived,
             players=game.addPlayerTiles(game.activeSeat, tile),
             wall=newWall
           )
@@ -69,7 +91,6 @@ object Transitions {
 
     def activePlayerDiscards(tileIndex: Int): Game = {
       game.copy(
-        state=TileDiscarded,
         players=game.playerDiscards(game.activeSeat, tileIndex),
       )
     }

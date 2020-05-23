@@ -20,7 +20,7 @@ object MahjongOps {
 
   implicit class WallOps(game: Game) {
     private val wall = game.wall
-    def takeTiles(n: Int): (Vector[Tile], Wall) = (wall.living.take(13), wall.copy(living=wall.living.drop(13)))
+    def takeTiles(n: Int): (Vector[Tile], Wall) = (wall.living.take(n), wall.copy(living=wall.living.drop(n)))
   }
 
   implicit class PlayerOps(game: Game) {
