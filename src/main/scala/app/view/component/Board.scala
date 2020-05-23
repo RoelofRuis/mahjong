@@ -18,10 +18,6 @@ object Board {
 
     board.translate(300.5, 300.5)
 
-    val activeSeatRotation = -game.activeSeat * Math.PI * 0.5
-
-    board.rotate(activeSeatRotation)
-
     board.drawCompass(game)
     board.drawWall(game.wall.living.length + game.wall.dead.length)
 

@@ -5,6 +5,8 @@ import model.Mahjong._
 object MahjongOps {
 
   implicit class GameOps(game: Game) {
+    def activePlayer: Option[Player] = game.players.get(game.activeSeat)
+
     def nextSeat: Game = {
       val filledSeats = game.players.keys.toList
       filledSeats.zipWithIndex.find { case (seat, _) => seat == game.activeSeat } match {
@@ -16,6 +18,8 @@ object MahjongOps {
       }
     }
     def setState(state: State): Game = game.copy(state=state)
+
+    def activePlayerIsAI: Boolean = activePlayer.exists(_.playerType == ComputerControlled)
   }
 
   implicit class WallOps(game: Game) {
