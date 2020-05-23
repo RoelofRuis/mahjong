@@ -54,11 +54,16 @@ object Mahjong {
 
   type Players = Map[WindDirection, Player]
 
+  sealed trait PlayerType
+  final case object ComputerControlled extends PlayerType
+  final case object HumanControlled extends PlayerType
+
   final case class Player(
     name: String,
     score: Int,
     seatWind: WindDirection,
     hand: Hand = Hand(),
+    playerType: PlayerType
   )
 
   final case class Wall(
@@ -113,6 +118,7 @@ object Mahjong {
     implicit val rwChow: RW[Chow] = macroRW
     implicit val rwCombination: RW[Combination] = macroRW
     implicit val rwHand: RW[Hand] = macroRW
+    implicit val rwPlayerType: RW[PlayerType] = macroRW
     implicit val rwPlayer: RW[Player] = macroRW
     implicit val rwWall: RW[Wall] = macroRW
     implicit val rwRound: RW[Round] = macroRW

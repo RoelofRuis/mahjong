@@ -43,16 +43,17 @@ object Transitions {
       }
     }
 
-    def seatPlayers(playerNames: Map[WindDirection, String]): Game = {
+    def seatPlayers(playerNames: Map[WindDirection, (PlayerType, String)]): Game = {
       val players = WIND_ORDER.flatMap { windDirection =>
         playerNames.get(windDirection) match {
           case None => None
-          case Some(name) =>
+          case Some((playerType, name)) =>
             Some(Player(
               name,
               0,
               windDirection,
               Hand(),
+              playerType,
             ))
         }
       }.map(player => player.seatWind -> player).toMap

@@ -11,10 +11,10 @@ import scalatags.JsDom.all._
 object NewGameForm {
 
   private def readForm: Option[NewGame] = {
-    val east  = HTML.inputValue("player-1").map((East, _))
-    val south = HTML.inputValue("player-2").map((South, _))
-    val west  = HTML.inputValue("player-3").map((West, _))
-    val north = HTML.inputValue("player-4").map((North, _))
+    val east  = HTML.inputValue("player-1").map(name => (East, (HumanControlled, name)))
+    val south = HTML.inputValue("player-2").map(name => (South, (ComputerControlled, name)))
+    val west  = HTML.inputValue("player-3").map(name => (West, (ComputerControlled, name)))
+    val north = HTML.inputValue("player-4").map(name => (North, (ComputerControlled, name)))
     val players = Seq(east, south, west, north).flatten
 
     val error = if (east.isEmpty) Some("The East player is required")
@@ -34,19 +34,19 @@ object NewGameForm {
   def render(model: Game): TypedTag[HTMLElement] = {
     div(cls := "form")(
       div(cls := "form-group")(
-        label(`for` := "player-1")("Player 1 (East)"),
+        label(`for` := "player-1")("Player 1 (East) (Human controlled)"),
         input(cls := "form-control", id := "player-1", value := model.players.get(East).map(_.name).getOrElse(""))
       ),
       div(cls := "form-group")(
-        label(`for` := "player-2")("Player 2 (South)"),
+        label(`for` := "player-2")("Player 2 (South) (Computer controlled)"),
         input(cls := "form-control", id := "player-2", value := model.players.get(South).map(_.name).getOrElse(""))
       ),
       div(cls := "form-group")(
-        label(`for` := "player-3")("Player 3 (West)"),
+        label(`for` := "player-3")("Player 3 (West) (Computer controlled)"),
         input(cls := "form-control", id := "player-3", value := model.players.get(West).map(_.name).getOrElse(""))
       ),
       div(cls := "form-group")(
-        label(`for` := "player-4")("Player 4 (North)"),
+        label(`for` := "player-4")("Player 4 (North) (Computer controlled)"),
         input(cls := "form-control", id := "player-4", value := model.players.get(North).map(_.name).getOrElse(""))
       ),
       div(id := "player-form-error")(),
