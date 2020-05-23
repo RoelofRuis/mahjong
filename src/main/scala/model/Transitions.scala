@@ -23,7 +23,6 @@ object Transitions {
       case (NextTurn, DealTile) =>
         game
           .dealIfMoreTiles
-          .setState(TileReceived)
 
       case (TileReceived, Discard(i)) =>
         game
@@ -83,6 +82,7 @@ object Transitions {
         case (tile, _) if tile.isEmpty => game.setState(NextRound)
         case (tile, newWall) =>
           game.copy(
+            state=TileReceived,
             players=game.addPlayerTiles(game.activeSeat, tile),
             wall=newWall
           )
