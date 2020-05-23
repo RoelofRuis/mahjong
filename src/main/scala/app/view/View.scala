@@ -15,7 +15,8 @@ object View {
       case Uninitialized => NewGameForm.render(model)
       case TileReceived => TileReceivedForm.render(model)
       case TileDiscarded(_) => TileDiscardedForm.render(model)
-      case _ => p()(s"Not implemented [${model}]")
+      case Ended => p()(s"Game has ended, <display scores> [$model]")
+      case _ => p()(s"Not implemented [$model]")
     }
 
     val contents = Map(
