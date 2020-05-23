@@ -45,6 +45,13 @@ object Mahjong {
     (bamboos ++ circles ++ characters ++ dragons ++ winds).toVector
   }
 
+  sealed trait DiscardReaction
+  final case class DeclarePung(tile0: Int, tile1: Int, discard: Int) extends DiscardReaction
+  final case class DeclareChow(tile0: Int, tile1: Int, discard: Int) extends DiscardReaction
+  final case class DeclareBigMeldedKong(tile0: Int, tile1: Int, tile2: Int) extends DiscardReaction
+  final case object DoNothing extends DiscardReaction
+  final case object DeclareMahjong extends DiscardReaction
+
   type Seat = Int
 
   type Players = Map[Seat, Player]
@@ -74,7 +81,7 @@ object Mahjong {
   final case object NextRound extends State
   final case object NextTurn extends State
   final case object TileReceived extends State
-  final case object TileDiscarded extends State
+  final case class TileDiscarded(reactions: Map[Seat, DiscardReaction] = Map()) extends State
   final case object KongDeclared extends State
   final case object MahjongDeclared extends State
   final case object Ended extends State
@@ -114,6 +121,11 @@ object Mahjong {
     implicit val rwPlayerType: RW[PlayerType] = macroRW
     implicit val rwPlayer: RW[Player] = macroRW
     implicit val rwWall: RW[Wall] = macroRW
+    implicit val rwDeclarePung: RW[DeclarePung] = macroRW
+    implicit val rwDeclareChow: RW[DeclareChow] = macroRW
+    implicit val rwDeclareBigMeldedKong: RW[DeclareBigMeldedKong] = macroRW
+    implicit val rwDiscardReaction: RW[DiscardReaction] = macroRW
+    implicit val rwTileDiscarded: RW[TileDiscarded] = macroRW
     implicit val rwState: RW[State] = macroRW
     implicit val rwGame: RW[Game] = macroRW
   }

@@ -20,6 +20,8 @@ object MahjongOps {
     def setState(state: State): Game = game.copy(state=state)
 
     def activePlayerIsAI: Boolean = activePlayer.exists(_.playerType == ComputerControlled)
+
+    def getAIPlayerSeats: Iterable[Seat] = game.players.filter { case (_, p) => p.playerType == ComputerControlled }.keys
   }
 
   implicit class WallOps(game: Game) {

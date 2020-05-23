@@ -14,7 +14,7 @@ object View {
     val controls = model.state match {
       case Uninitialized => NewGameForm.render(model)
       case TileReceived => TileReceivedForm.render(model)
-      case TileDiscarded => TileDiscardedForm.render(model)
+      case TileDiscarded(_) => TileDiscardedForm.render(model)
       case _ => p()(s"Not implemented [${model}]")
     }
 

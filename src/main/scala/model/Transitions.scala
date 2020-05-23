@@ -28,16 +28,16 @@ object Transitions {
       case (TileReceived, Discard(i)) =>
         game
           .activePlayerDiscards(i)
-          .setState(TileDiscarded)
+          .setState(TileDiscarded())
+
+      case (TileDiscarded(map), ReactToDiscard(seat, reaction)) =>
+        game
+          .setState(TileDiscarded(map.updated(seat, reaction)))
+          .determineDiscardResult
 
       case (NextRound, TallyScores) =>
         if (game.prevalentWind == WIND_ORDER.last) game.tallyScores.setState(Ended)
         else game.tallyScores.nextRound.dealStartingHands.setState(NextTurn)
-
-      case (TileDiscarded, DoNothing) =>
-        game
-          .nextSeat
-          .setState(NextTurn)
 
       case _ => game
     }
@@ -93,6 +93,20 @@ object Transitions {
       game.copy(
         players=game.playerDiscards(game.activeSeat, tileIndex),
       )
+    }
+
+    def determineDiscardResult: Game = {
+      game.state match {
+        case TileDiscarded(reactions) =>
+          if (reactions.size < game.players.size) game
+          else {
+            // TODO: implement
+            game
+              .nextSeat
+              .setState(NextTurn)
+          }
+        case _ => game
+      }
     }
 
     def tallyScores: Game = game // TODO: implement

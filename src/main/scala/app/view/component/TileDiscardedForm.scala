@@ -1,8 +1,8 @@
 package app.view.component
 
 import app.App
-import model.Actions.DoNothing
-import model.Mahjong.Game
+import model.Actions.ReactToDiscard
+import model.Mahjong.{DoNothing, Game}
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
@@ -15,7 +15,7 @@ object TileDiscardedForm {
         tr()(
           th()("Do Nothing"),
           th()(
-            button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.react(DoNothing) })("Submit")
+            button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.react(ReactToDiscard(0, DoNothing)) })("Do Nothing")
           )
         )
       )

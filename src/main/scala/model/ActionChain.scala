@@ -1,19 +1,27 @@
 package model
 
-import model.Actions.{Action, DealTile, Discard, TallyScores}
+import model.Actions._
 import model.Mahjong._
 
 object ActionChain {
 
   import MahjongOps._
 
-  def getNext(model: Game): Option[Action] = {
-    model.state match {
+  def getNext(game: Game): Option[Action] = {
+    game.state match {
       case NextTurn => Some(DealTile)
       case NextRound => Some(TallyScores)
-      case TileReceived if model.activePlayerIsAI =>
+      case TileReceived if game.activePlayerIsAI =>
         // TODO: actual AI move
         Some(Discard(0))
+
+      case TileDiscarded(res) =>
+        game.getAIPlayerSeats.toSet.diff(res.keys.toSet).toList match {
+          case List() => None
+          case seat :: _ =>
+            // TODO: actual AI move
+            Some(ReactToDiscard(seat, DoNothing))
+        }
 
       case _ => None
     }
