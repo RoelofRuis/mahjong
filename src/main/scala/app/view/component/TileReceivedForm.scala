@@ -14,10 +14,13 @@ object TileReceivedForm {
   def render(model: Game): TypedTag[HTMLElement] = {
     table(cls := "table")(
       tbody()(
+          tr()(
+            th("Received a tile")
+          ),
         model.players(model.activeSeat).concealedTiles.zipWithIndex.map { case (tile, i) =>
           tr()(
-            th()(tile.asText),
-            th()(
+            td()(tile.asText),
+            td()(
               button(cls := "btn btn-sm btn-outline-secondary", onclick := { () => App.react(Discard(i)) })("Discard")
             )
           )

@@ -5,6 +5,11 @@ import model.Mahjong._
 object MahjongOps {
 
   implicit class GameOps(game: Game) {
+    def lastDiscard: Option[(Player, Tile)] = for {
+      activePlayer <- game.activePlayer
+      discard <- activePlayer.discards.lastOption
+    } yield (activePlayer, discard)
+
     def activePlayer: Option[Player] = game.players.get(game.activeSeat)
 
     def nextSeat: Game = {
