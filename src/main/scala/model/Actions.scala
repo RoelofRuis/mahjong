@@ -1,12 +1,12 @@
 package model
 
-import model.Mahjong.{PlayerType, WindDirection}
+import model.Mahjong.{PlayerType, Seat}
 
 object Actions {
 
   sealed trait Action
 
-  case class NewGame(players: Map[WindDirection, (PlayerType, String)]) extends Action
+  case class NewGame(players: Map[Seat, (PlayerType, String)]) extends Action
   case object Restart extends Action
   case object DealTile extends Action
   case object TallyScores extends Action

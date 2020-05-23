@@ -14,7 +14,7 @@ object TileReceivedForm {
   def render(model: Game): TypedTag[HTMLElement] = {
     table(cls := "table")(
       tbody()(
-        model.players(model.round.activePlayer).hand.concealedTiles.zipWithIndex.map { case (tile, i) =>
+        model.players(model.round.activeSeat).hand.concealedTiles.zipWithIndex.map { case (tile, i) =>
           tr()(
             th()(tile.asText),
             th()(

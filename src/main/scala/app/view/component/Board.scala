@@ -18,16 +18,20 @@ object Board {
 
     board.translate(300.5, 300.5)
 
+    val activeSeatRotation = -game.round.activeSeat * Math.PI * 0.5
+
+    board.rotate(activeSeatRotation)
+
     board.drawCompass(game.round)
     board.drawWall(game.wall.living.length + game.wall.dead.length)
 
-    board.drawPlayer(game.players.get(East), game.round.activePlayer)
+    board.drawPlayer(game.players.get(0), game.round.activeSeat == 0)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(South), game.round.activePlayer)
+    board.drawPlayer(game.players.get(1), game.round.activeSeat == 1)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(West), game.round.activePlayer)
+    board.drawPlayer(game.players.get(2), game.round.activeSeat == 2)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(North), game.round.activePlayer)
+    board.drawPlayer(game.players.get(3), game.round.activeSeat == 3)
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {
@@ -52,14 +56,14 @@ object Board {
       ctx.rotate(-Math.PI * 2)
     }
 
-    def drawPlayer(player: Option[Player], activePlayer: WindDirection): Unit = {
+    def drawPlayer(player: Option[Player], isActive: Boolean): Unit = {
       player match {
         case None =>
         case Some(player) =>
           drawPlayerHand(player.hand)
 
           ctx.beginPath()
-          if (player.seatWind == activePlayer) ctx.font = "bold 12px monospace"
+          if (isActive) ctx.font = "bold 12px monospace"
           else ctx.font = "12px monospace"
 
           ctx.fillStyle = "black"

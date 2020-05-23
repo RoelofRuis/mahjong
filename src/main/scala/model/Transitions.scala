@@ -12,11 +12,11 @@ object Transitions {
   def react(game: Game, action: Action): Game = {
     (game.state, action) match {
       case (_, Restart) => Mahjong.newGame(Random)
-      case (Uninitialized, NewGame(playerNames)) => game.seatPlayers(playerNames).dealStartingHands
+      case (Uninitialized, NewGame(playerData)) => game.seatPlayers(playerData).dealStartingHands
       case (NextTurn, DealTile) => game.dealIfMoreTiles
       case (TileReceived, Discard(i)) => game.activePlayerDiscards(i)
       case (NextRound, TallyScores) => game.tallyScores.nextRound.dealStartingHands
-      case (TileDiscarded, DoNothing) => game.copy(state=NextTurn,round=game.round.copy(activePlayer=game.nextPlayerWind))
+      case (TileDiscarded, DoNothing) => game.copy(state=NextTurn,round=game.round.copy(activeSeat=game.nextSeat))
 
       case _ => game
     }
@@ -38,25 +38,25 @@ object Transitions {
         game.copy(
           wall=Wall(shuffled.drop(14), shuffled.take(14)),
           players=game.players.map { case (d, p) => d -> p.copy(hand=Hand()) },
-          round=Round(WIND_ORDER(WIND_ORDER.indexOf(game.round.prevalentWind) + 1), WIND_ORDER(0), 0)
+          round=Round(WIND_ORDER(WIND_ORDER.indexOf(game.round.prevalentWind) + 1), 0, 0)
         )
       }
     }
 
-    def seatPlayers(playerNames: Map[WindDirection, (PlayerType, String)]): Game = {
-      val players = WIND_ORDER.flatMap { windDirection =>
-        playerNames.get(windDirection) match {
+    def seatPlayers(playerNames: Map[Seat, (PlayerType, String)]): Game = {
+      val players = Range.inclusive(0, 3).flatMap { seat =>
+        playerNames.get(seat) match {
           case None => None
           case Some((playerType, name)) =>
-            Some(Player(
+            Some(seat -> Player(
               name,
               0,
-              windDirection,
+              WIND_ORDER(seat),
               Hand(),
               playerType,
             ))
         }
-      }.map(player => player.seatWind -> player).toMap
+      }.toMap
       game.copy(players=players)
     }
 
@@ -68,7 +68,7 @@ object Transitions {
 
       game.copy(
         state=TileDiscarded,
-        players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand))
+        players=game.players.updated(game.round.activeSeat, game.activePlayer.copy(hand=newHand))
       )
     }
 
@@ -79,7 +79,7 @@ object Transitions {
           val newHand = game.activePlayer.hand.copy(concealedTiles=game.activePlayer.hand.concealedTiles :+ tile)
           game.copy(
             state=TileReceived,
-            players=game.players.updated(game.round.activePlayer, game.activePlayer.copy(hand=newHand)),
+            players=game.players.updated(game.round.activeSeat, game.activePlayer.copy(hand=newHand)),
             wall=game.wall.copy(living=game.wall.living.tail)
           )
       }

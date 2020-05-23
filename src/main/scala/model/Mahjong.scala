@@ -52,7 +52,9 @@ object Mahjong {
     discards: Vector[Tile] = Vector[Tile]()
   )
 
-  type Players = Map[WindDirection, Player]
+  type Seat = Int
+
+  type Players = Map[Seat, Player]
 
   sealed trait PlayerType
   final case object ComputerControlled extends PlayerType
@@ -73,7 +75,7 @@ object Mahjong {
 
   final case class Round(
     prevalentWind: WindDirection,
-    activePlayer: WindDirection,
+    activeSeat: Seat,
     turn: Int,
   )
 
@@ -100,7 +102,7 @@ object Mahjong {
     Game(
       Uninitialized,
       Map(),
-      Round(WIND_ORDER(0), WIND_ORDER(0), 0),
+      Round(WIND_ORDER(0), 0, 0),
       Wall(shuffled.drop(14), shuffled.take(14))
     )
   }
