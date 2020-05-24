@@ -10,6 +10,7 @@ import scalatags.JsDom.all._
 object TileDiscardedForm {
 
   import model.MahjongOps._
+  import model.PlayerActions._
   import model.Text._
 
   def render(model: Game): TypedTag[HTMLElement] = {
@@ -17,17 +18,26 @@ object TileDiscardedForm {
       s"Player '${player.name}' discards '${tile.asText}'"
     }.getOrElse("Unknown discard...")
 
+    val actionsWithText = model.activePlayer.map(_.validActionsOnDiscard).getOrElse(Seq()).flatMap {
+      case action @ DoNothing => Some((action, "Do Nothing"))
+      case _ => None
+    }
+
+    val activePlayer = 0 // TODO: this might change?
+
     table(cls := "table")(
       tbody()(
         tr()(
           th(colspan := 2)(discardText)
         ),
-        tr()(
-          td()("Do Nothing"),
-          td()(
-            button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.react(ReactToDiscard(0, DoNothing)) })("Do Nothing")
+        actionsWithText.map { case (action, text) =>
+          tr()(
+            td()("Do Nothing"),
+            td()(
+              button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.react(ReactToDiscard(activePlayer, action)) })(text)
+            )
           )
-        )
+        }
       )
     )
   }

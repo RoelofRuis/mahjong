@@ -1,6 +1,6 @@
 package model
 
-import model.Mahjong.{DiscardReaction, PlayerType, Seat}
+import model.Mahjong.{DiscardReaction, PlayerType, Seat, Tile}
 
 object Actions {
 
@@ -12,10 +12,11 @@ object Actions {
   case object TallyScores extends Action
 
   // Player actions
-  case class Discard(tilePos: Int) extends Action
-  case class DeclareConcealedKong(tilePos0: Int, tilePos1: Int, tilePos2: Int, tilePos3: Int) extends Action
-  case class DeclareSmallMeldedKong(combinationPos: Int, tilePos: Int) extends Action
-  case object DeclareMahjong extends Action
+  sealed trait ReactToReceive extends Action
+  case class Discard(tile: Tile) extends ReactToReceive
+  case class DeclareConcealedKong(tilePos0: Int, tilePos1: Int, tilePos2: Int, tilePos3: Int) extends ReactToReceive
+  case class DeclareSmallMeldedKong(combinationPos: Int, tilePos: Int) extends ReactToReceive
+  case object DeclareMahjong extends ReactToReceive
   case class ReactToDiscard(seat: Seat, reaction: DiscardReaction) extends Action
 
 }

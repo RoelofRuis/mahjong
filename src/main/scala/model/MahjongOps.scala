@@ -39,11 +39,15 @@ object MahjongOps {
       player.copy(concealedTiles=player.concealedTiles ++ tiles)
     }
 
-    def playerDiscards(seat: Seat, tileIndex: Int): Players = updateSeat(seat) { player =>
-      player.copy(
-        concealedTiles=player.concealedTiles.zipWithIndex.filter{ case (_, i) => i != tileIndex }.map(_._1),
-        discards=player.discards :+ player.concealedTiles(tileIndex),
-      )
+    def playerDiscards(seat: Seat, tile: Tile): Players = updateSeat(seat) { player =>
+      player.concealedTiles.indexOf(tile) match {
+        case -1 => player
+        case index =>
+          player.copy(
+            concealedTiles=player.concealedTiles.zipWithIndex.filter{ case (_, i) => i != index }.map(_._1),
+            discards=player.discards :+ tile
+          )
+      }
     }
 
     private def updateSeat(seat: Seat)(f: Player => Player): Players = {

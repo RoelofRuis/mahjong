@@ -24,9 +24,9 @@ object Transitions {
         game
           .dealIfMoreTiles
 
-      case (TileReceived, Discard(i)) =>
+      case (TileReceived, Discard(t)) =>
         game
-          .activePlayerDiscards(i)
+          .activePlayerDiscards(t)
           .setState(TileDiscarded())
 
       case (TileDiscarded(map), ReactToDiscard(seat, reaction)) =>
@@ -89,9 +89,9 @@ object Transitions {
       }
     }
 
-    def activePlayerDiscards(tileIndex: Int): Game = {
+    def activePlayerDiscards(tile: Tile): Game = {
       game.copy(
-        players=game.playerDiscards(game.activeSeat, tileIndex),
+        players=game.playerDiscards(game.activeSeat, tile),
       )
     }
 

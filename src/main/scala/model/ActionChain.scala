@@ -13,7 +13,7 @@ object ActionChain {
       case NextRound => Some(TallyScores)
       case TileReceived if game.activePlayerIsAI =>
         // TODO: actual AI move
-        Some(Discard(0))
+        Some(Discard(game.activePlayer.get.concealedTiles.head))
 
       case TileDiscarded(res) =>
         game.getAIPlayerSeats.toSet.diff(res.keys.toSet).toList match {
