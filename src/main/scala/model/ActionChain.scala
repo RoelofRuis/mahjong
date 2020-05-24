@@ -16,7 +16,7 @@ object ActionChain {
         Some(Discard(game.activePlayer.get.concealedTiles.head))
 
       case TileDiscarded(res) =>
-        game.getAIPlayerSeats.toSet.diff(res.keys.toSet).toList match {
+        (game.getAIPlayerSeats.toSet - game.activeSeat).diff(res.keys.toSet).toList match {
           case List() => None
           case seat :: _ =>
             // TODO: actual AI move

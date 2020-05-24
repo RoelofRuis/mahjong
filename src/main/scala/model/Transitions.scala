@@ -98,7 +98,7 @@ object Transitions {
     def determineDiscardResult: Game = {
       game.state match {
         case TileDiscarded(reactions) =>
-          if (reactions.size < game.players.size) game
+          if (reactions.size < (game.players.size - 1)) game
           else {
             // TODO: implement
             game
