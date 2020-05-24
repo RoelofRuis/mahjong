@@ -9,12 +9,11 @@ import scalatags.JsDom.all._
 
 object TileReceivedForm {
 
-  import model.MahjongOps._
   import model.PlayerActions._
   import model.Text._
 
   def render(model: Game): TypedTag[HTMLElement] = {
-    val actionsWithText = model.activePlayer.map(_.validActionsOnReceive).getOrElse(Seq()).flatMap {
+    val actionsWithText = model.validActionsOnReceive.flatMap {
       case action @ Discard(tile) => Some(action, tile.asText)
       case _ => None
     }

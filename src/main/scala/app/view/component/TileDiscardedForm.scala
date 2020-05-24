@@ -18,12 +18,12 @@ object TileDiscardedForm {
       s"Player '${player.name}' discards '${tile.asText}'"
     }.getOrElse("Unknown discard...")
 
-    val actionsWithText = model.activePlayer.map(_.validActionsOnDiscard).getOrElse(Seq()).flatMap {
+    val activePlayer = 0 // TODO: this might change?
+
+    val actionsWithText = model.validActionsOnDiscard(activePlayer).flatMap {
       case action @ DoNothing => Some((action, "Do Nothing"))
       case _ => None
     }
-
-    val activePlayer = 0 // TODO: this might change?
 
     table(cls := "table")(
       tbody()(

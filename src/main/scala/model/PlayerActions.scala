@@ -1,17 +1,31 @@
 package model
 
 import model.Actions.{Discard, ReactToReceive}
-import model.Mahjong.{DiscardReaction, DoNothing, Player}
+import model.Mahjong.{DiscardReaction, DoNothing, Game, Player, Seat, Tile}
 
 object PlayerActions {
 
-  implicit class PlayerActionOps(player: Player) {
+  import model.MahjongOps._
+
+  implicit class PlayerActionOps(game: Game) {
 
     def validActionsOnReceive: Seq[ReactToReceive] = {
-      player.concealedTiles.map(Discard)
+      game.activePlayer.map { player =>
+        player.concealedTiles.map(Discard)
+      }.getOrElse(Seq())
     }
 
-    def validActionsOnDiscard: Seq[DiscardReaction] = Seq(DoNothing)
+    def validActionsOnDiscard(seat: Seat): Seq[DiscardReaction] = {
+      val reaction: Option[(Player, Player, Tile)] = for {
+        (discardingPlayer, tile) <- game.lastDiscard
+        reactingPlayer <- game.players.get(seat)
+        if discardingPlayer != reactingPlayer
+      } yield (reactingPlayer, discardingPlayer, tile)
+
+      reaction.map { case (reactingPlayer, discardingPlayer, tile) =>
+        Seq(DoNothing)
+      }.getOrElse(Seq())
+    }
 
   }
 
