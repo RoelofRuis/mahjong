@@ -1,20 +1,20 @@
-package app.view.component
+package app.modules.game.component
 
-import app.App
-import model.Actions.Discard
-import model.Mahjong.Game
+import app.modules.game.Game
+import app.modules.game.model.Actions.Discard
+import app.modules.game.model.Mahjong.Table
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 
 object TileReceivedForm {
 
-  import model.PlayerActions._
-  import model.Text._
+  import app.modules.game.model.PlayerActions._
+  import app.modules.game.model.Text._
 
-  def render(model: Game): TypedTag[HTMLElement] = {
+  def render(model: Table): TypedTag[HTMLElement] = {
     val actionsWithText = model.validActionsOnReceive.flatMap {
-      case action @ Discard(tile) => Some(action, tile.asText)
+      case action@Discard(tile) => Some(action, tile.asText)
       case _ => None
     }
 
@@ -27,7 +27,7 @@ object TileReceivedForm {
           tr()(
             td()(text),
             td()(
-              button(cls := "btn btn-sm btn-outline-secondary", onclick := { () => App.react(action) })("Discard")
+              button(cls := "btn btn-sm btn-outline-secondary", onclick := { () => Game.react(action) })("Discard")
             )
           )
         }

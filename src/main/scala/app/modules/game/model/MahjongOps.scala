@@ -1,10 +1,10 @@
-package model
+package app.modules.game.model
 
-import model.Mahjong._
+import app.modules.game.model.Mahjong._
 
 object MahjongOps {
 
-  implicit class GameOps(game: Game) {
+  implicit class GameOps(game: Table) {
     def lastDiscard: Option[(Player, Tile)] = for {
       activePlayer <- game.activePlayer
       discard <- activePlayer.discards.lastOption
@@ -12,7 +12,7 @@ object MahjongOps {
 
     def activePlayer: Option[Player] = game.players.get(game.activeSeat)
 
-    def nextSeat: Game = {
+    def nextSeat: Table = {
       val filledSeats = game.players.keys.toList
       filledSeats.zipWithIndex.find { case (seat, _) => seat == game.activeSeat } match {
         case None => game
@@ -22,19 +22,19 @@ object MahjongOps {
           game.copy(activeSeat=filledSeats(nextIndex))
       }
     }
-    def setState(state: State): Game = game.copy(state=state)
+    def setState(state: State): Table = game.copy(state=state)
 
     def activePlayerIsAI: Boolean = activePlayer.exists(_.playerType == ComputerControlled)
 
     def getAIPlayerSeats: Iterable[Seat] = game.players.filter { case (_, p) => p.playerType == ComputerControlled }.keys
   }
 
-  implicit class WallOps(game: Game) {
+  implicit class WallOps(game: Table) {
     private val wall = game.wall
     def takeTiles(n: Int): (Vector[Tile], Wall) = (wall.living.take(n), wall.copy(living=wall.living.drop(n)))
   }
 
-  implicit class PlayerOps(game: Game) {
+  implicit class PlayerOps(game: Table) {
     def addPlayerTiles(seat: Seat, tiles: Vector[Tile]): Players = updateSeat(seat) { player =>
       player.copy(concealedTiles=player.concealedTiles ++ tiles)
     }

@@ -1,7 +1,7 @@
-package model
+package app.modules.game.model
 
-import model.Actions._
-import model.Mahjong._
+import app.modules.game.model.Actions._
+import app.modules.game.model.Mahjong._
 
 import scala.util.Random
 
@@ -9,7 +9,7 @@ object Transitions {
 
   import MahjongOps._
 
-  def react(game: Game, action: Action): Game = {
+  def react(game: Table, action: Action): Table = {
     (game.state, action) match {
       case (_, Restart) =>
         Mahjong.newGame(Random)
@@ -42,9 +42,9 @@ object Transitions {
     }
   }
 
-  implicit class GameActions(game: Game) {
+  implicit class GameActions(game: Table) {
 
-    def seatPlayers(playerNames: Map[Seat, (PlayerType, String)]): Game = {
+    def seatPlayers(playerNames: Map[Seat, (PlayerType, String)]): Table = {
       val players = Range.inclusive(0, 3).flatMap { seat =>
         playerNames.get(seat) match {
           case None => None
@@ -64,7 +64,7 @@ object Transitions {
       game.copy(players=players)
     }
 
-    def dealStartingHands: Game = {
+    def dealStartingHands: Table = {
       game
         .players
         .keys
@@ -77,7 +77,7 @@ object Transitions {
         }
     }
 
-    def dealIfMoreTiles: Game = {
+    def dealIfMoreTiles: Table = {
       game.takeTiles(1) match {
         case (tile, _) if tile.isEmpty => game.setState(NextRound)
         case (tile, newWall) =>
@@ -89,13 +89,13 @@ object Transitions {
       }
     }
 
-    def activePlayerDiscards(tile: Tile): Game = {
+    def activePlayerDiscards(tile: Tile): Table = {
       game.copy(
         players=game.playerDiscards(game.activeSeat, tile),
       )
     }
 
-    def determineDiscardResult: Game = {
+    def determineDiscardResult: Table = {
       game.state match {
         case TileDiscarded(reactions) =>
           if (reactions.size < (game.players.size - 1)) game
@@ -109,9 +109,9 @@ object Transitions {
       }
     }
 
-    def tallyScores: Game = game // TODO: implement
+    def tallyScores: Table = game // TODO: implement
 
-    def nextRound: Game = {
+    def nextRound: Table = {
       if (game.prevalentWind == WIND_ORDER.last) game.copy(state=Ended)
       else {
         val tiles = game.wall.dead ++ game.wall.living ++ game.players.flatMap { case (_, p) =>

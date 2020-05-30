@@ -1,4 +1,4 @@
-package model
+package app.modules.game.model
 
 import upickle.default.{macroRW, ReadWriter => RW}
 
@@ -86,7 +86,7 @@ object Mahjong {
   final case object MahjongDeclared extends State
   final case object Ended extends State
 
-  final case class Game(
+  final case class Table(
     state: State,
     wall: Wall,
     players: Players,
@@ -94,10 +94,10 @@ object Mahjong {
     activeSeat: Seat,
   )
 
-  def newGame(random: Random): Game = {
+  def newGame(random: Random): Table = {
     val shuffled = random.shuffle(TILESET)
 
-    Game(
+    Table(
       Uninitialized,
       Wall(shuffled.drop(14), shuffled.take(14)),
       Map(),
@@ -127,7 +127,7 @@ object Mahjong {
     implicit val rwDiscardReaction: RW[DiscardReaction] = macroRW
     implicit val rwTileDiscarded: RW[TileDiscarded] = macroRW
     implicit val rwState: RW[State] = macroRW
-    implicit val rwGame: RW[Game] = macroRW
+    implicit val rwGame: RW[Table] = macroRW
   }
 
 }

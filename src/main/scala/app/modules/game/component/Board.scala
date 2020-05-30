@@ -1,15 +1,15 @@
-package app.view.component
+package app.modules.game.component
 
-import model.Mahjong._
+import app.modules.game.model.Mahjong._
 import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.html.Canvas
 
 object Board {
 
-  import model.Text.WindDirectionText
+  import app.modules.game.model.Text.WindDirectionText
 
-  def draw: Game => Unit = game => {
+  def draw: Table => Unit = game => {
     val canvas = dom.document.getElementById("board").asInstanceOf[Canvas]
     val board = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
     board.translate(0, 0)
@@ -81,7 +81,7 @@ object Board {
       }
     }
 
-    def drawCompass(game: Game): Unit = {
+    def drawCompass(game: Table): Unit = {
       val RADIUS = 60
       ctx.strokeStyle = "black"
       ctx.fillStyle = "black"
@@ -101,7 +101,7 @@ object Board {
       ctx.lineTo(-10, -10)
       ctx.font = "20px monospace"
       val coords = Seq((-5, RADIUS + 16), (RADIUS + 2, 6), (-5, -(RADIUS + 4)), (-(RADIUS + 14), 6))
-      model.Mahjong.WIND_ORDER.zip(coords).foreach { case (dir, (x, y)) =>
+      WIND_ORDER.zip(coords).foreach { case (dir, (x, y)) =>
         ctx.fillStyle = "black"
         ctx.fillText(dir.asChar, x, y)
       }

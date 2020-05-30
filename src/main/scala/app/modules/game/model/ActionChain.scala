@@ -1,13 +1,13 @@
-package model
+package app.modules.game.model
 
-import model.Actions._
-import model.Mahjong._
+import app.modules.game.model.Actions._
+import app.modules.game.model.Mahjong._
 
 object ActionChain {
 
   import MahjongOps._
 
-  def getNext(game: Game): Option[Action] = {
+  def getNext(game: Table): Option[Action] = {
     game.state match {
       case NextTurn => Some(DealTile)
       case NextRound => Some(TallyScores)

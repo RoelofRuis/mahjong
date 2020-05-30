@@ -1,4 +1,4 @@
-package app.view
+package app
 
 import org.scalajs.dom.raw.HTMLElement
 import org.scalajs.dom.{document, html}

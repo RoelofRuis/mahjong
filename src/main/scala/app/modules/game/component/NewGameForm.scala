@@ -1,9 +1,9 @@
-package app.view.component
+package app.modules.game.component
 
-import app.App
-import app.view.HTML
-import model.Actions.NewGame
-import model.Mahjong._
+import app.HTML
+import app.modules.game.Game
+import app.modules.game.model.Actions.NewGame
+import app.modules.game.model.Mahjong._
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
@@ -31,7 +31,7 @@ object NewGameForm {
     }
   }
 
-  def render(model: Game): TypedTag[HTMLElement] = {
+  def render(model: Table): TypedTag[HTMLElement] = {
     div(cls := "form")(
       div(cls := "form-group")(
         label(`for` := "player-1")("Player 1 (East) (Human controlled)"),
@@ -50,7 +50,7 @@ object NewGameForm {
         input(cls := "form-control", id := "player-4", value := model.players.get(3).map(_.name).getOrElse(""))
       ),
       div(id := "player-form-error")(),
-      button(cls := "btn btn-success", onclick := { () => readForm.foreach(App.react) })("New Game")
+      button(cls := "btn btn-success", onclick := { () => readForm.foreach(Game.react) })("New Game")
     )
   }
 

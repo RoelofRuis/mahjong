@@ -1,13 +1,13 @@
-package model
+package app.modules.game.model
 
-import model.Actions.{Discard, ReactToReceive}
-import model.Mahjong.{DiscardReaction, DoNothing, Game, Player, Seat, Tile}
+import app.modules.game.model.Actions.{Discard, ReactToReceive}
+import app.modules.game.model.Mahjong.{DiscardReaction, DoNothing, Table, Player, Seat, Tile}
 
 object PlayerActions {
 
-  import model.MahjongOps._
+  import app.modules.game.model.MahjongOps._
 
-  implicit class PlayerActionOps(game: Game) {
+  implicit class PlayerActionOps(game: Table) {
 
     def validActionsOnReceive: Seq[ReactToReceive] = {
       game.activePlayer.map { player =>

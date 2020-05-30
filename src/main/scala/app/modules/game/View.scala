@@ -1,16 +1,16 @@
-package app.view
+package app.modules.game
 
 import app.App
-import app.view.component._
-import model.Actions.Restart
-import model.Mahjong._
+import app.modules.game.component._
+import app.modules.game.model.Actions.Restart
+import app.modules.game.model.Mahjong._
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 
 object View {
 
-  def render(model: Game): (Map[String, TypedTag[HTMLElement]], Game => Unit) = {
+  def render(model: Table): (Map[String, TypedTag[HTMLElement]], Table => Unit) = {
     val controls = model.state match {
       case Uninitialized => NewGameForm.render(model)
       case TileReceived => TileReceivedForm.render(model)
@@ -29,7 +29,15 @@ object View {
 
   private def navContents(): TypedTag[HTMLElement] = div(cls := "navbar navbar-expand-lg navbar-light bg-light")(
     div(cls :="navbar-brand")("Mahjong"),
-    button(cls := "btn btn-sm btn-outline-danger ml-auto", onclick := (() => App.react(Restart)))("Restart")
+    ul(cls :="navbar-nav")(
+      li(cls :="nav-item active")(
+        a(cls :="nav-link", role := "button", onclick := (() => App.view("game")))("Game")
+      ),
+      li(cls :="nav-item")(
+        a(cls :="nav-link", role := "button", onclick := (() => App.view("capture")))("Capture")
+      )
+    ),
+    button(cls := "btn btn-sm btn-outline-danger ml-auto", onclick := (() => Game.react(Restart)))("Restart"),
   )
 
   private def pageContents(controls: TypedTag[HTMLElement]): TypedTag[HTMLElement] = div(cls := "row")(

@@ -1,19 +1,19 @@
-package app.view.component
+package app.modules.game.component
 
-import app.App
-import model.Actions.ReactToDiscard
-import model.Mahjong.{DoNothing, Game}
+import app.modules.game.Game
+import app.modules.game.model.Actions.ReactToDiscard
+import app.modules.game.model.Mahjong.{DoNothing, Table}
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 
 object TileDiscardedForm {
 
-  import model.MahjongOps._
-  import model.PlayerActions._
-  import model.Text._
+  import app.modules.game.model.MahjongOps._
+  import app.modules.game.model.PlayerActions._
+  import app.modules.game.model.Text._
 
-  def render(model: Game): TypedTag[HTMLElement] = {
+  def render(model: Table): TypedTag[HTMLElement] = {
     val discardText = model.lastDiscard.map { case (player, tile) =>
       s"Player '${player.name}' discards '${tile.asText}'"
     }.getOrElse("Unknown discard...")
@@ -34,7 +34,7 @@ object TileDiscardedForm {
           tr()(
             td()("Do Nothing"),
             td()(
-              button(cls := "btn btn-sm btn-outline-success", onclick := { () => App.react(ReactToDiscard(activePlayer, action)) })(text)
+              button(cls := "btn btn-sm btn-outline-success", onclick := { () => Game.react(ReactToDiscard(activePlayer, action)) })(text)
             )
           )
         }

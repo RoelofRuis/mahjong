@@ -1,20 +1,25 @@
-package app
+package app.modules.capture
+
+import app.HTML
+import typings.std.{MediaDevices, MediaStreamConstraints}
+import typings.std.global.{console, document, window}
+import typings.w3cImageCapture.global.ImageCapture
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.JSExecutionContext
 import scala.scalajs.js.Dynamic
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
+import scala.scalajs.js.annotation.JSExport
 import scala.util.{Failure, Success}
-import typings.std.global.{console, document, window}
-import typings.std.{MediaDevices, MediaStreamConstraints}
-import typings.w3cImageCapture.global.ImageCapture
 
-@JSExportTopLevel("Capture")
 object Capture {
 
   private implicit val ex: ExecutionContext = JSExecutionContext.queue
 
   private var imageCapture: Option[ImageCapture] = None
+
+  def render(): Unit = {
+    HTML.addToPage(View.render())
+  }
 
   @JSExport("startMediaStream")
   def startMediaStream(): Unit = {
@@ -47,4 +52,3 @@ object Capture {
   }
 
 }
-

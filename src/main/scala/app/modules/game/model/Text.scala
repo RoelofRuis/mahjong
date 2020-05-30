@@ -1,6 +1,6 @@
-package model
+package app.modules.game.model
 
-import model.Mahjong.{Bamboos, Characters, Circles, DragonTile, East, North, South, SuitedTile, Tile, West, WindDirection, WindTile}
+import app.modules.game.model.Mahjong.{Bamboos, Characters, Circles, DragonTile, East, North, South, SuitedTile, Tile, West, WindDirection, WindTile}
 
 object Text {
 

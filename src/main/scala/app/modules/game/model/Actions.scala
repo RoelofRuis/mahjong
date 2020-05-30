@@ -1,6 +1,6 @@
-package model
+package app.modules.game.model
 
-import model.Mahjong.{DiscardReaction, PlayerType, Seat, Tile}
+import app.modules.game.model.Mahjong.{DiscardReaction, PlayerType, Seat, Tile}
 
 object Actions {
 
