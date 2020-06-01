@@ -10,6 +10,7 @@ import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.JSExecutionContext
 import scala.scalajs.js.Dynamic
 import scala.util.{Failure, Success}
+import ImageProcessing._
 
 object Capture {
 
@@ -48,7 +49,14 @@ object Capture {
             val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
             context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height)
             imageBitmap.close()
-            val x: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
+            val i: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
+
+            val p = new ProcessableImage(i)
+
+            val edited = p.grayscale.asImageData
+            println(edited)
+
+            context.putImageData(edited, 0, 0)
         }
     }
   }
