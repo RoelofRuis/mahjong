@@ -33,8 +33,8 @@ lazy val browserProject: Project => Project =
       (Compile / fastOptJS / startWebpackDevServer).value
     },
     dist := {
-      val artifacts = (Compile / fullOptJS / webpack).value
-      val artifactFolder = (Compile/ fullOptJS / crossTarget).value
+      val artifacts = (Compile / fastOptJS / webpack).value
+      val artifactFolder = (Compile/ fastOptJS / crossTarget).value
       val distFolder = (ThisBuild / baseDirectory).value / "dist"
 
       val bundleFile = artifacts

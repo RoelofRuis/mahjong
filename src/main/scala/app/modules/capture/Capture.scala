@@ -51,12 +51,11 @@ object Capture {
             imageBitmap.close()
             val i: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
 
-            val p = new ProcessableImage(i)
+            i.grayscale()
+            i.blur()
+            i.threshold(100)
 
-            val edited = p.grayscale.asImageData
-            println(edited)
-
-            context.putImageData(edited, 0, 0)
+            context.putImageData(i, 0, 0)
         }
     }
   }

@@ -1,52 +1,58 @@
 package app.modules.capture
 
 import typings.std.ImageData
-import typings.std.global.Uint8ClampedArray
 
 object ImageProcessing {
 
-  class ProcessableImage(source: ImageData) {
+  implicit class ImageDataOps(source: ImageData) {
     val width: Int = source.width.toInt
     val height: Int = source.height.toInt
+    val numPix: Int = (source.data.length / 4).toInt
     assert(source.data.length % 4 == 0)
 
-    var data: Array[(Int, Int, Int, Int)] = {
-      val rawData = source.data
-      Range(0, rawData.length.toInt / 4).foldRight(Array[(Int, Int, Int, Int)]()) { case (i, acc) =>
-        acc :+ (
-          rawData(i).get.toInt,
-          rawData(i + 1).get.toInt,
-          rawData(i + 2).get.toInt,
-          rawData(i + 3).get.toInt
-        )
+    @inline
+    def r(x: Int, y: Int): Double = source.data(((y * width) + x) * 4).getOrElse(255D)
+    @inline
+    def g(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 1).getOrElse(255D)
+    @inline
+    def b(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 2).getOrElse(255D)
+
+    @inline
+    def putPixel(x: Int, y: Int, r: Double, g: Double, b: Double): Unit = {
+      val i = ((y * width) + x) * 4
+      source.data(i) = r
+      source.data(i + 1) = g
+      source.data(i + 2) = b
+    }
+
+    def grayscale(): Unit = {
+      for (y: Int <- 0 until height) {
+        for (x: Int <- 0 until width) {
+          val avg = (r(x,y) + g(x,y) + b(x,y)) / 3
+          putPixel(x, y, avg, avg, avg)
+        }
       }
     }
 
-    def updatePixels(f: ((Int, Int, Int, Int)) => (Int, Int, Int, Int)): Unit = data = data.map(f)
-
-    def asImageData: ImageData = {
-      val uintData = new Uint8ClampedArray(data.length * 4)
-      data.zipWithIndex.foreach { case (i, index) =>
-        val j = index * 4
-        uintData(j) = i._1
-        uintData(j + 1) = i._2
-        uintData(j + 2) = i._3
-        uintData(j + 3) = i._4
+    def blur(): Unit = {
+      for (y: Int <- 2 until height - 2) {
+        for (x: Int <- 2 until width - 2) {
+          putPixel(x, y,
+            (r(x - 1, y) + r(x, y) * 2 + r(x + 1, y)) / 4,
+            (g(x - 1, y) + g(x, y) * 2 + g(x + 1, y)) / 4,
+            (b(x - 1, y) + b(x, y) * 2 + b(x + 1, y)) / 4,
+          )
+        }
       }
-      ImageData.apply(uintData, height.toDouble, width.toDouble)
-    }
-  }
-
-  implicit class ProcessingOps(image: ProcessableImage) {
-
-    def grayscale: ProcessableImage = {
-      image.updatePixels { case (r, g, b, a) =>
-        val avg = (r + g + b) / 3
-        (avg, avg, avg, a)
-      }
-      image
     }
 
+    def threshold(t: Double): Unit = {
+      for (y: Int <- 0 until height) {
+        for (x: Int <- 0 until width) {
+          if (r(x, y) > t) putPixel(x, y, 255D, 255D, 255D)
+        }
+      }
+    }
   }
 
 }
