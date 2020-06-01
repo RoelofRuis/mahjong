@@ -7,7 +7,6 @@ lazy val mahjong = (project in file("."))
     name := "mahjong",
     scalaVersion := "2.13.1",
     version := "0.1",
-    webpackBundlingMode := BundlingMode.LibraryAndApplication(),
     scalaJSUseMainModuleInitializer := true,
 
     libraryDependencies ++= Seq(
@@ -38,13 +37,16 @@ lazy val browserProject: Project => Project =
       val artifactFolder = (Compile/ fullOptJS / crossTarget).value
       val distFolder = (ThisBuild / baseDirectory).value / "dist"
 
-      artifacts.foreach { artifact =>
-        val target = artifact.data.relativeTo(artifactFolder) match {
-          case None          => distFolder / artifact.data.name
-          case Some(relFile) => distFolder / relFile.toString
-        }
+      val bundleFile = artifacts
+        .find(_.metadata.get(BundlerFileTypeAttr).exists(_ == BundlerFileType.ApplicationBundle))
+        .get
+        .data
 
-        Files.copy(artifact.data.toPath, target.toPath, StandardCopyOption.REPLACE_EXISTING)
+      val target = bundleFile.relativeTo(artifactFolder) match {
+        case None          => distFolder / bundleFile.name
+        case Some(relFile) => distFolder / relFile.toString
       }
+
+      Files.copy(bundleFile.toPath, target.toPath, StandardCopyOption.REPLACE_EXISTING)
     }
   )

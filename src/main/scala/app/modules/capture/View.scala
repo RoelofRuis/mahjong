@@ -1,6 +1,8 @@
 package app.modules.capture
 
 import app.App
+import app.modules.game.Game
+import app.modules.game.model.Actions.Restart
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
@@ -26,8 +28,16 @@ object View {
     ),
   )
 
-  private def pageContents(): TypedTag[HTMLElement] = div(cls := "row")(
-
+  private def pageContents(): TypedTag[HTMLElement] = div(
+    div(cls := "row")(
+      video(id := "media-stream", width := 320, height := 240, attr("autoplay") := true)
+    ),
+    div(cls := "row")(
+      canvas(id := "media-canvas", width := 320, height := 240)
+    ),
+    div(cls := "row")(
+      button(cls := "btn btn-sm btn-primary", onclick := (() => Capture.captureImage()))("Capture"),
+    )
   )
 
 }
