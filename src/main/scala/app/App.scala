@@ -8,7 +8,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("App")
 object App {
 
-  def main(args: Array[String]): Unit = Game.view()
+  def main(args: Array[String]): Unit = Capture.view()
 
   def view(viewName: String): Unit = {
     viewName match {

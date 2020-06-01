@@ -53,7 +53,7 @@ object Capture {
 
             i.grayscale()
             i.blur()
-            i.threshold(100)
+            i.threshold(200)
 
             context.putImageData(i, 0, 0)
         }
