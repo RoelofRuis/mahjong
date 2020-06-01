@@ -17,7 +17,7 @@ object Capture {
 
   private var imageCapture: Option[ImageCapture] = None
 
-  def render(): Unit = {
+  def view(): Unit = {
     startMediaStream()
     HTML.addToPage(View.render())
   }

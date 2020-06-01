@@ -5,7 +5,6 @@ import app.modules.game.model.{ActionChain, Mahjong, Transitions}
 import app.{HTML, Storage}
 import org.scalajs.dom
 
-import scala.scalajs.js.annotation.JSExport
 import scala.util.Random
 
 object Game {
@@ -18,13 +17,12 @@ object Game {
       Mahjong.newGame(Random)
   }
 
-  @JSExport("react")
   def react(action: Action): Unit = {
     model = Transitions.react(model, action)
-    render()
+    view()
   }
 
-  def render(): Unit = {
+  def view(): Unit = {
     ActionChain.getNext(model) match {
       case Some(a) => react(a)
       case None =>
