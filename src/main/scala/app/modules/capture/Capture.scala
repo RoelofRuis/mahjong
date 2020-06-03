@@ -2,21 +2,19 @@ package app.modules.capture
 
 import app.HTML
 import org.scalajs.dom.html.Canvas
-import typings.std.global.{console, document, window}
-import typings.std.{CanvasRenderingContext2D, ImageData, MediaDevices, MediaStreamConstraints}
-import typings.w3cImageCapture.global.ImageCapture
+import org.scalajs.dom.{CanvasRenderingContext2D, ImageData, document, window}
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.JSExecutionContext
 import scala.scalajs.js.Dynamic
 import scala.util.{Failure, Success}
 import ImageProcessing._
+import org.scalajs.dom.experimental.mediastream.{MediaDevices, MediaStreamConstraints}
+import org.scalajs.dom.raw.HTMLElement
 
 object Capture {
 
   private implicit val ex: ExecutionContext = JSExecutionContext.queue
-
-  private var imageCapture: Option[ImageCapture] = None
 
   def view(): Unit = {
     startMediaStream()
@@ -24,40 +22,29 @@ object Capture {
   }
 
   def startMediaStream(): Unit = {
-    typings.std.global.window
     val mediaDevices = window.navigator.asInstanceOf[Dynamic].mediaDevices.asInstanceOf[MediaDevices]
 
     mediaDevices.getUserMedia(MediaStreamConstraints(video=true,audio=false)).toFuture.onComplete {
-      case Failure(ex) => console.error("Unable to get user media [%s]", Seq(ex))
+      case Failure(ex) => window.console.error("Unable to get user media [%s]", Seq(ex))
       case Success(mediaStream) =>
         val videoElement = document.getElementById("media-stream").asInstanceOf[Dynamic]
         videoElement.srcObject = mediaStream
-
-        val track = mediaStream.getVideoTracks()(0)
-        imageCapture = Some(new ImageCapture(track))
     }
   }
 
   def captureImage(): Unit = {
-    imageCapture match {
-      case None => console.error("ImageCapture was not initialized")
-      case Some(imageCapture) =>
-        imageCapture.grabFrame().toFuture.onComplete {
-          case Failure(ex) => console.error("Unable to grab frame [%s]", Seq(ex))
-          case Success(imageBitmap) =>
-            val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
-            val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-            context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height)
-            imageBitmap.close()
-            val i: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
+    val videoElement = document.getElementById("media-stream").asInstanceOf[HTMLElement]
+    val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
+    val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
 
-            i.grayscale()
-            i.blur()
-            i.threshold(200)
+    val i: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
 
-            context.putImageData(i, 0, 0)
-        }
-    }
+    i.grayscale()
+    i.blur()
+    i.threshold(200)
+
+    context.putImageData(i, 0, 0)
   }
 
 }

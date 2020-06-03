@@ -1,34 +1,34 @@
 package app.modules.capture
 
-import typings.std.ImageData
+import org.scalajs.dom.ImageData
 
 object ImageProcessing {
 
   implicit class ImageDataOps(source: ImageData) {
-    val width: Int = source.width.toInt
-    val height: Int = source.height.toInt
-    val numPix: Int = (source.data.length / 4).toInt
+    val width: Int = source.width
+    val height: Int = source.height
+    val numPix: Int = source.data.length / 4
     assert(source.data.length % 4 == 0)
 
     @inline
-    def r(x: Int, y: Int): Double = source.data(((y * width) + x) * 4).getOrElse(255D)
+    def r(x: Int, y: Int): Double = source.data(((y * width) + x) * 4)
     @inline
-    def g(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 1).getOrElse(255D)
+    def g(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 1)
     @inline
-    def b(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 2).getOrElse(255D)
+    def b(x: Int, y: Int): Double = source.data((((y * width) + x) * 4) + 2)
 
     @inline
     def putPixel(x: Int, y: Int, r: Double, g: Double, b: Double): Unit = {
       val i = ((y * width) + x) * 4
-      source.data(i) = r
-      source.data(i + 1) = g
-      source.data(i + 2) = b
+      source.data(i) = r.toInt
+      source.data(i + 1) = g.toInt
+      source.data(i + 2) = b.toInt
     }
 
     def grayscale(): Unit = {
       for (y: Int <- 0 until height) {
         for (x: Int <- 0 until width) {
-          val avg = (r(x,y) + g(x,y) + b(x,y)) / 3
+          val avg = ((r(x,y) + g(x,y) + b(x,y)) / 3).toInt
           putPixel(x, y, avg, avg, avg)
         }
       }

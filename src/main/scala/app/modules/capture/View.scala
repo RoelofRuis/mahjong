@@ -1,8 +1,6 @@
 package app.modules.capture
 
 import app.App
-import app.modules.game.Game
-import app.modules.game.model.Actions.Restart
 import org.scalajs.dom.raw.HTMLElement
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
