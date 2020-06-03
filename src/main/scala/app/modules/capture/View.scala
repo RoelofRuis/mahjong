@@ -28,10 +28,10 @@ object View {
 
   private def pageContents(): TypedTag[HTMLElement] = div(
     div(cls := "row")(
-      video(id := "media-stream", width := 320, height := 240, attr("autoplay") := true)
+      video(id := "media-stream", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
+      canvas(id := "media-canvas", attr("width") := 320, attr("height") := 240)
     ),
     div(cls := "row")(
-      canvas(id := "media-canvas", width := 320, height := 240)
     ),
     div(cls := "row")(
       button(cls := "btn btn-sm btn-primary", onclick := (() => Capture.captureImage()))("Capture"),

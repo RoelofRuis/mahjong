@@ -1,16 +1,15 @@
 package app.modules.capture
 
 import app.HTML
-import org.scalajs.dom.html.Canvas
+import app.modules.capture.ImageProcessing._
+import org.scalajs.dom.experimental.mediastream.{MediaDevices, MediaStreamConstraints}
+import org.scalajs.dom.html.{Canvas, Video}
 import org.scalajs.dom.{CanvasRenderingContext2D, ImageData, document, window}
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.JSExecutionContext
 import scala.scalajs.js.Dynamic
 import scala.util.{Failure, Success}
-import ImageProcessing._
-import org.scalajs.dom.experimental.mediastream.{MediaDevices, MediaStreamConstraints}
-import org.scalajs.dom.raw.HTMLElement
 
 object Capture {
 
@@ -33,16 +32,16 @@ object Capture {
   }
 
   def captureImage(): Unit = {
-    val videoElement = document.getElementById("media-stream").asInstanceOf[HTMLElement]
+    val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
     val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
     val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
+
+    context.drawImage(videoElement,0, 0, canvas.width, canvas.height)
 
     val i: ImageData = context.getImageData(0, 0, canvas.width, canvas.height)
 
     i.grayscale()
     i.blur()
-    i.threshold(200)
 
     context.putImageData(i, 0, 0)
   }
