@@ -7,6 +7,8 @@ import org.scalajs.dom.raw.{Event, HTMLElement}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 import ImageProcessing._
+import app.modules.game.Game
+import app.modules.game.model.Actions.Restart
 
 object View {
 
@@ -70,7 +72,8 @@ object View {
               option()("1 of Circles"),
               option()("2 of Circles"),
             )
-          )
+          ),
+          button(cls := "btn btn-success", onclick := (() => readForm))("Capture"),
         )
       ),
       div(cls := "col-8")(
