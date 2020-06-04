@@ -33,26 +33,29 @@ object View {
         div(cls := "form")(
           div(cls := "form-group")(
             label(`for` := "h-size")("Horizontal window"),
-            input(`type` := "range", min := 50, max := 320, id := "h-size", value := model.horizontalWindow, onchange := {(e: Event) =>
+            input(cls := "form-control", `type` := "range", min := 50, max := 320, id := "h-size", value := model.horizontalWindow, onchange := {(e: Event) =>
               HTML.inputValue("h-size").map(_.toInt).foreach(Capture.setHorizontalWindow)
             })
           ),
           div(cls := "form-group")(
             label(`for` := "v-size")("Vertial window"),
-            input(`type` := "range", min := 50, max := 240, id := "v-size", value := model.verticalWindow, onchange := {(e: Event) =>
+            input(cls := "form-control", `type` := "range", min := 50, max := 240, id := "v-size", value := model.verticalWindow, onchange := {(e: Event) =>
               HTML.inputValue("v-size").map(_.toInt).foreach(Capture.setVerticalWindow)
             })
           ),
           div(cls := "form-group")(
             label(`for` := "zoom")("Zoom"),
-            input(`type` := "range", step := 0.01, min := 1.0, max := 2.0, id := "zoom", value := model.zoom, onchange := {(e: Event) =>
+            input(cls := "form-control", `type` := "range", step := 0.01, min := 1.0, max := 2.0, id := "zoom", value := model.zoom, onchange := {(e: Event) =>
               HTML.inputValue("zoom").map(_.toDouble).foreach(Capture.setZoom)
             })
           )
         )
       ),
       div(cls := "col-8")(
-        video(id := "media-stream", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
+        div(width := 340, height := 240)(
+          video(id := "media-stream", zIndex := 0, position := "absolute", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
+          canvas(id := "media-cover", zIndex := 10, position := "absolute", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
+        ),
         canvas(id := "media-canvas", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
       )
     )

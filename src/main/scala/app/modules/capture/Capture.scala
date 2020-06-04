@@ -50,6 +50,16 @@ object Capture {
       case Success(mediaStream) =>
         val videoElement = document.getElementById("media-stream").asInstanceOf[Dynamic]
         videoElement.srcObject = mediaStream
+
+        val canvas = document.getElementById("media-cover").asInstanceOf[Canvas]
+        val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+        context.fillStyle = "red"
+        context.beginPath()
+        context.moveTo(0, 120)
+        context.lineTo(340, 120)
+        context.moveTo(160, 0)
+        context.lineTo(160, 240)
+        context.stroke()
     }
   }
 
@@ -64,8 +74,8 @@ object Capture {
     context.fillRect(0, 0, canvas.width, canvas.height)
     context.drawImage(
       videoElement,
-      640 - (640 / model.zoom),
-      480 - (480 / model.zoom),
+      640 - (640 / model.zoom) + ((320 - model.horizontalWindow) / 2),
+      480 - (480 / model.zoom) + ((240 - model.verticalWindow) / 2),
       640 / model.zoom,
       480 / model.zoom,
       0,
@@ -73,6 +83,11 @@ object Capture {
       320 * model.zoom,
       240 * model.zoom
     )
+
+    val i = context.getImageData(0, 0, canvas.width, canvas.height)
+    i.grayscale()
+
+    context.putImageData(i, 0, 0)
   }
 
 }
