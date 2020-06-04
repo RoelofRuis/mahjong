@@ -1,16 +1,17 @@
 package app.modules.capture
 
-import app.App
-import org.scalajs.dom.raw.HTMLElement
+import app.{App, HTML}
+import app.modules.capture.Model.DetectionModel
+import org.scalajs.dom.raw.{Event, HTMLElement}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
 
 object View {
 
-  def render(): (Map[String, TypedTag[HTMLElement]]) = {
+  def render(model: DetectionModel): Map[String, TypedTag[HTMLElement]] = {
     Map(
       "nav" -> navContents(),
-      "page" -> pageContents(),
+      "page" -> pageContents(model),
     )
   }
 
@@ -26,15 +27,34 @@ object View {
     ),
   )
 
-  private def pageContents(): TypedTag[HTMLElement] = div(
+  private def pageContents(model: DetectionModel): TypedTag[HTMLElement] = div(
     div(cls := "row")(
-      video(id := "media-stream", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
-      canvas(id := "media-canvas", attr("width") := 320, attr("height") := 240)
-    ),
-    div(cls := "row")(
-    ),
-    div(cls := "row")(
-      button(cls := "btn btn-sm btn-primary", onclick := (() => Capture.captureImage()))("Capture"),
+      div(cls := "col-4")(
+        div(cls := "form")(
+          div(cls := "form-group")(
+            label(`for` := "h-size")("Horizontal window"),
+            input(`type` := "range", min := 50, max := 320, id := "h-size", value := model.horizontalWindow, onchange := {(e: Event) =>
+              HTML.inputValue("h-size").map(_.toInt).foreach(Capture.setHorizontalWindow)
+            })
+          ),
+          div(cls := "form-group")(
+            label(`for` := "v-size")("Vertial window"),
+            input(`type` := "range", min := 50, max := 240, id := "v-size", value := model.verticalWindow, onchange := {(e: Event) =>
+              HTML.inputValue("v-size").map(_.toInt).foreach(Capture.setVerticalWindow)
+            })
+          ),
+          div(cls := "form-group")(
+            label(`for` := "zoom")("Zoom"),
+            input(`type` := "range", step := 0.01, min := 1.0, max := 2.0, id := "zoom", value := model.zoom, onchange := {(e: Event) =>
+              HTML.inputValue("zoom").map(_.toDouble).foreach(Capture.setZoom)
+            })
+          )
+        )
+      ),
+      div(cls := "col-8")(
+        video(id := "media-stream", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
+        canvas(id := "media-canvas", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
+      )
     )
   )
 
