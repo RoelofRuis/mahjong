@@ -9,7 +9,7 @@ object Board {
 
   import app.modules.game.model.Text.WindDirectionText
 
-  def draw: Table => Unit = game => {
+  def draw(table: Table)(): Unit = {
     val canvas = dom.document.getElementById("board").asInstanceOf[Canvas]
     val board = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
     board.translate(0, 0)
@@ -18,16 +18,16 @@ object Board {
 
     board.translate(300.5, 300.5)
 
-    board.drawCompass(game)
-    board.drawWall(game.wall.living.length + game.wall.dead.length)
+    board.drawCompass(table)
+    board.drawWall(table.wall.living.length + table.wall.dead.length)
 
-    board.drawPlayer(game.players.get(0), game.activeSeat == 0)
+    board.drawPlayer(table.players.get(0), table.activeSeat == 0)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(1), game.activeSeat == 1)
+    board.drawPlayer(table.players.get(1), table.activeSeat == 1)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(2), game.activeSeat == 2)
+    board.drawPlayer(table.players.get(2), table.activeSeat == 2)
     board.rotate(Math.PI * 0.5)
-    board.drawPlayer(game.players.get(3), game.activeSeat == 3)
+    board.drawPlayer(table.players.get(3), table.activeSeat == 3)
   }
 
   implicit class GameDrawing(ctx: CanvasRenderingContext2D) {

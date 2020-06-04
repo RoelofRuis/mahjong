@@ -2,9 +2,6 @@ package app.modules.capture
 
 import org.scalajs.dom.ImageData
 
-import scala.collection.mutable
-import scala.collection.mutable.Map
-
 object ImageProcessing {
 
   implicit class ImageDataOps(source: ImageData) {

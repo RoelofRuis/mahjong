@@ -28,7 +28,7 @@ object Game {
       case None =>
         val (view, draw) = View.render(model)
         HTML.addToPage(view)
-        draw(model)
+        draw()
         Storage.save(model)
     }
   }

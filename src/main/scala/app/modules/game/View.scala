@@ -10,7 +10,7 @@ import scalatags.JsDom.all._
 
 object View {
 
-  def render(model: Table): (Map[String, TypedTag[HTMLElement]], Table => Unit) = {
+  def render(model: Table): (Map[String, TypedTag[HTMLElement]], () => Unit) = {
     val controls = model.state match {
       case Uninitialized => NewGameForm.render(model)
       case TileReceived => TileReceivedForm.render(model)
@@ -24,7 +24,7 @@ object View {
       "page" -> pageContents(controls),
     )
 
-    (contents, Board.draw)
+    (contents, Board.draw(model))
   }
 
   private def navContents(): TypedTag[HTMLElement] = div(cls := "navbar navbar-expand-lg navbar-light bg-light")(
