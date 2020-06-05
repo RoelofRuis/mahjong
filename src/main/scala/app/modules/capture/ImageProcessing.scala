@@ -39,7 +39,7 @@ object ImageProcessing {
     def grayscale(): Unit = {
       for (y: Int <- 0 until height) {
         for (x: Int <- 0 until width) {
-          val avg = (r(x, y) + g(x, y) + b(x, y)) / 3
+          val avg = (r(x, y) * 0.3 + g(x, y) * 0.59 + b(x, y) * 0.11)
           putPixel(x, y, avg, avg, avg)
         }
       }
