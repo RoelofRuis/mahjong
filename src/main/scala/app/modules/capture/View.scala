@@ -16,6 +16,8 @@ object View {
   private var FAST_Threshold = 10;
   private var FAST_Contiguous = 12;
 
+  val BRIEF_Pairs = ImageProcessing.calculateBriefPairs(9, 64)
+
   private def readForm(): Unit = {
     val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
     val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
@@ -39,8 +41,10 @@ object View {
     i.grayscale()
     i.blur()
     val keyPoints = i.FAST(FAST_Threshold, FAST_Contiguous, drawResults=true)
+    val descriptors = i.BRIEF(keyPoints, BRIEF_Pairs)
 
-    println(keyPoints)
+    descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
+
 
     context.putImageData(i, 0, 0)
   }

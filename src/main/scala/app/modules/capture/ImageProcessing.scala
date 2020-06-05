@@ -4,8 +4,40 @@ import org.scalajs.dom.ImageData
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 object ImageProcessing {
+
+  def calculateBriefPairs(patchSize: Int, numPairs: Int): Array[((Int, Int), (Int, Int))] = {
+    assert(patchSize >= 7)
+    assert(numPairs < 256)
+    val gaussianConst = (patchSize * patchSize).toDouble / 25
+    val limit = (patchSize - 1) / 2
+
+    @tailrec
+    def sampleGaussian(): Int = {
+      val sample = (Random.nextGaussian() * gaussianConst).toInt
+      if (sample > limit || sample < -limit) sampleGaussian()
+      else sample
+    }
+
+    @tailrec
+    def loop(acc: Array[((Int, Int), (Int, Int))]): Array[((Int, Int), (Int, Int))] = {
+      if (acc.length == numPairs) acc
+      else {
+        val x1 = sampleGaussian()
+        val y1 = sampleGaussian()
+        val x2 = sampleGaussian()
+        val y2 = sampleGaussian()
+        val p1 = (x1, y1)
+        val p2 = (x2, y2)
+        if (p1 == p2 || acc.contains((p1, p2))) loop(acc)
+        else loop(acc :+ (p1, p2))
+      }
+    }
+
+    loop(Array())
+  }
 
   implicit class ImageDataOps(source: ImageData) {
     val width: Int = source.width
@@ -151,6 +183,18 @@ object ImageProcessing {
         }
       }
       res.toArray
+    }
+
+    def BRIEF(keyPoints: Array[(Int, Int)], pairs: Array[((Int, Int), (Int, Int))]): Array[Array[Boolean]] = {
+      val featureVectors = ArrayBuffer[Array[Boolean]]()
+      for ((px, py) <- keyPoints) {
+        val vector = ArrayBuffer[Boolean]()
+        for (((x1, y1), (x2, y2)) <- pairs) {
+          vector.append(r(px + x1, py + y1) < r(px + x2, py + y2))
+        }
+        featureVectors.append(vector.toArray)
+      }
+      featureVectors.toArray
     }
   }
 
