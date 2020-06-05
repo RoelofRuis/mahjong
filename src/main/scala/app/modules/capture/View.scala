@@ -89,17 +89,19 @@ object View {
     val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
     val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
     val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    canvas.width = 320 - (horizontalBounds * 2)
+    canvas.height = 240 - (verticalBounds * 2)
 
     context.drawImage(
       videoElement,
-      (320 - horizontalBounds),
-      (240 - verticalBounds),
-      640,
-      480,
+      horizontalBounds * 2,
+      verticalBounds * 2,
+      640 - (horizontalBounds * 2),
+      480 - (verticalBounds * 2),
       0,
       0,
-      320,
-      240
+      320 - horizontalBounds,
+      240 - verticalBounds
     )
 
     val i = context.getImageData(0, 0, canvas.width, canvas.height)
