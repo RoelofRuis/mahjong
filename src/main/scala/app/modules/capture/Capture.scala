@@ -2,8 +2,7 @@ package app.modules.capture
 
 import app.HTML
 import org.scalajs.dom.experimental.mediastream.{MediaDevices, MediaStreamConstraints}
-import org.scalajs.dom.html.Canvas
-import org.scalajs.dom.{CanvasRenderingContext2D, document, window}
+import org.scalajs.dom.{document, window}
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.JSExecutionContext
@@ -29,16 +28,6 @@ object Capture {
       case Success(mediaStream) =>
         val videoElement = document.getElementById("media-stream").asInstanceOf[Dynamic]
         videoElement.srcObject = mediaStream
-
-        val canvas = document.getElementById("media-cover").asInstanceOf[Canvas]
-        val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-        context.strokeStyle = "red"
-        context.beginPath()
-        context.moveTo(0, 120)
-        context.lineTo(340, 120)
-        context.moveTo(160, 0)
-        context.lineTo(160, 240)
-        context.stroke()
     }
   }
 

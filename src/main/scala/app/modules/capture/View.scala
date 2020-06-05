@@ -1,19 +1,17 @@
 package app.modules.capture
 
+import app.modules.capture.ImageProcessing._
 import app.{App, HTML}
-import org.scalajs.dom.{CanvasRenderingContext2D, document}
 import org.scalajs.dom.html.{Canvas, Video}
 import org.scalajs.dom.raw.{Event, HTMLElement}
+import org.scalajs.dom.{CanvasRenderingContext2D, document}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
-import ImageProcessing._
-import app.modules.game.Game
-import app.modules.game.model.Actions.Restart
 
 object View {
 
-  private var horizontalWindow = 320;
-  private var verticalWindow = 240;
+  private var horizontalBounds = 0;
+  private var verticalBounds = 0;
 
   private def readForm: Unit = {
     val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
@@ -51,18 +49,18 @@ object View {
       div(cls := "col-4")(
         div(cls := "form")(
           div(cls := "form-group")(
-            label(`for` := "h-size", id := "h-size-label")(s"Horizontal window ($horizontalWindow)"),
-            input(cls := "form-control", `type` := "range", min := 50, max := 320, id := "h-size", value := horizontalWindow, onchange := {(e: Event) =>
-              HTML.inputValue("h-size").map(_.toInt).foreach(horizontalWindow = _)
-              HTML.updateLabel("h-size-label", s"Horizontal window ($horizontalWindow)")
+            label(`for` := "h-size", id := "h-size-label")(s"Horizontal window ($horizontalBounds)"),
+            input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBounds, onchange := {(e: Event) =>
+              HTML.inputValue("h-size").map(_.toInt).foreach(horizontalBounds = _)
+              HTML.updateLabel("h-size-label", s"Horizontal window ($horizontalBounds)")
               redraw()
             })
           ),
           div(cls := "form-group")(
-            label(`for` := "v-size", id := "v-size-label")(s"Vertial window ($verticalWindow)"),
-            input(cls := "form-control", `type` := "range", min := 50, max := 240, id := "v-size", value := verticalWindow, onchange := {(e: Event) =>
-              HTML.inputValue("v-size").map(_.toInt).foreach(verticalWindow = _)
-              HTML.updateLabel("v-size-label", s"Horizontal window ($verticalWindow)")
+            label(`for` := "v-size", id := "v-size-label")(s"Vertial window ($verticalBounds)"),
+            input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBounds, onchange := {(e: Event) =>
+              HTML.inputValue("v-size").map(_.toInt).foreach(verticalBounds = _)
+              HTML.updateLabel("v-size-label", s"Horizontal window ($verticalBounds)")
               redraw()
             })
           ),
@@ -81,22 +79,21 @@ object View {
           video(id := "media-stream", zIndex := 0, position := "absolute", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
           canvas(id := "media-cover", zIndex := 10, position := "absolute", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
         ),
-        canvas(id := "media-canvas", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
+        canvas(id := "tile-target", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
       )
     )
   )
 
   private def redraw(): Unit = {
+    drawBox()
     val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
-    val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
-    canvas.width = horizontalWindow
-    canvas.height = verticalWindow
+    val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
     val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
 
     context.drawImage(
       videoElement,
-      (320 - horizontalWindow),
-      (240 - verticalWindow),
+      (320 - horizontalBounds),
+      (240 - verticalBounds),
       640,
       480,
       0,
@@ -109,6 +106,23 @@ object View {
     i.grayscale()
 
     context.putImageData(i, 0, 0)
+  }
+
+  private def drawBox(): Unit = {
+    val canvas = document.getElementById("media-cover").asInstanceOf[Canvas]
+    val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    context.strokeStyle = "red"
+    context.beginPath()
+    context.moveTo(320 - horizontalBounds, 0)
+    context.lineTo(320 - horizontalBounds, 240)
+    context.moveTo(horizontalBounds, 0)
+    context.lineTo(horizontalBounds, 240)
+    context.moveTo(0, 240 - verticalBounds)
+    context.lineTo(320, 240 - verticalBounds)
+    context.moveTo(0,verticalBounds)
+    context.lineTo(320,verticalBounds)
+    context.stroke()
   }
 
 }
