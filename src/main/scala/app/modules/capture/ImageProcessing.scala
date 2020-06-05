@@ -3,6 +3,7 @@ package app.modules.capture
 import org.scalajs.dom.ImageData
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 object ImageProcessing {
 
@@ -71,11 +72,11 @@ object ImageProcessing {
     @inline
     def diff(a: Double, b: Double, t: Int): Int = {
       if (a > (b + t)) 1
-      else if (a < (b - t)) - 1
+      else if (a < (b - t)) -1
       else 0
     }
 
-    def FAST(t: Int, n: Int): Unit = {
+    def FAST(t: Int, n: Int, drawResults: Boolean): Array[(Int, Int)] = {
       @tailrec
       def isKeypoint(a: Array[Int], streak: Int, startStreak: Int, atStart: Boolean): Boolean = {
         if (a.isEmpty) {
@@ -112,7 +113,7 @@ object ImageProcessing {
         }
       }
 
-
+      val res = ArrayBuffer[(Int, Int)]()
       for (y: Int <- 4 until height - 4) {
         for (x: Int <- 4 until width - 4) {
           val pI = r(x, y)
@@ -122,7 +123,7 @@ object ImageProcessing {
           val p13 = diff(pI, r(x - 3, y), t)
 
           val quicksum = p1 + p5 + p9 + p13
-          if (quicksum >= 3 || quicksum <= - 3) {
+          if (quicksum >= 3 || quicksum <= -3) {
             val p2 = diff(pI, r(x + 1, y + 3), t)
             val p3 = diff(pI, r(x + 2, y + 2), t)
             val p4 = diff(pI, r(x + 3, y + 1), t)
@@ -138,16 +139,18 @@ object ImageProcessing {
 
             val selected = isKeypoint(
               Array(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16),
-              streak=0,
-              startStreak=0,
-              atStart=true
+              streak = 0,
+              startStreak = 0,
+              atStart = true
             )
             if (selected) {
-              putPixel(x, y, 0, 255, 0)
+              if (drawResults) putPixel(x, y, 0, 255, 0)
+              res.append((x, y))
             }
           }
         }
       }
+      res.toArray
     }
   }
 

@@ -38,7 +38,9 @@ object View {
     val i = context.getImageData(0, 0, canvas.width, canvas.height)
     i.grayscale()
     i.blur()
-    i.FAST(FAST_Threshold, FAST_Contiguous)
+    val keyPoints = i.FAST(FAST_Threshold, FAST_Contiguous, drawResults=true)
+
+    println(keyPoints)
 
     context.putImageData(i, 0, 0)
   }
