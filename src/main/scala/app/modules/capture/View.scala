@@ -10,18 +10,37 @@ import scalatags.JsDom.all._
 
 object View {
 
-  private var horizontalBounds = 0;
-  private var verticalBounds = 0;
+  private var horizontalBound = 0;
+  private var verticalBound = 0;
 
-  private def readForm: Unit = {
-    val canvas = document.getElementById("media-canvas").asInstanceOf[Canvas]
+  private var FAST_Threshold = 10;
+  private var FAST_Contiguous = 12;
+
+  private def readForm(): Unit = {
+    val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
+    val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
     val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    canvas.width = 320 - (horizontalBound * 2)
+    canvas.height = 240 - (verticalBound * 2)
 
-    val tile = HTML.inputValue("tile-select")
-    val image = context.getImageData(0, 0, canvas.width, canvas.height)
+    context.drawImage(
+      videoElement,
+      horizontalBound * 2,
+      verticalBound * 2,
+      640 - (horizontalBound * 2),
+      480 - (verticalBound * 2),
+      0,
+      0,
+      320 - horizontalBound,
+      240 - verticalBound
+    )
 
-    println(tile)
-    println(image)
+    val i = context.getImageData(0, 0, canvas.width, canvas.height)
+    i.grayscale()
+    i.blur()
+    i.FAST(FAST_Threshold, FAST_Contiguous)
+
+    context.putImageData(i, 0, 0)
   }
 
   def render(): (Map[String, TypedTag[HTMLElement]], () => Unit) = {
@@ -49,19 +68,29 @@ object View {
       div(cls := "col-4")(
         div(cls := "form")(
           div(cls := "form-group")(
-            label(`for` := "h-size", id := "h-size-label")(s"Horizontal window ($horizontalBounds)"),
-            input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBounds, onchange := {(e: Event) =>
-              HTML.inputValue("h-size").map(_.toInt).foreach(horizontalBounds = _)
-              HTML.updateLabel("h-size-label", s"Horizontal window ($horizontalBounds)")
+            label(`for` := "h-size", id := "h-size-label")(s"Horizontal bound"),
+            input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBound, onchange := {(e: Event) =>
+              HTML.inputValue("h-size").map(_.toInt).foreach(horizontalBound = _)
               redraw()
             })
           ),
           div(cls := "form-group")(
-            label(`for` := "v-size", id := "v-size-label")(s"Vertial window ($verticalBounds)"),
-            input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBounds, onchange := {(e: Event) =>
-              HTML.inputValue("v-size").map(_.toInt).foreach(verticalBounds = _)
-              HTML.updateLabel("v-size-label", s"Horizontal window ($verticalBounds)")
+            label(`for` := "v-size", id := "v-size-label")(s"Vertical bound"),
+            input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBound, onchange := {(e: Event) =>
+              HTML.inputValue("v-size").map(_.toInt).foreach(verticalBound = _)
               redraw()
+            })
+          ),
+          div(cls := "form-group")(
+            label(`for` := "fast-t", id := "v-size-label")(s"FAST threshold"),
+            input(cls := "form-control", `type` := "range", id := "fast-t", min := 1, max := 20, value := FAST_Threshold, onchange := {(e: Event) =>
+              HTML.inputValue("fast-t").map(_.toInt).foreach(FAST_Threshold = _)
+            })
+          ),
+          div(cls := "form-group")(
+            label(`for` := "fast-n", id := "v-size-label")(s"FAST contiguous"),
+            input(cls := "form-control", `type` := "range", id := "fast-n", min := 1 , max := 16, value := FAST_Contiguous, onchange := {(e: Event) =>
+              HTML.inputValue("fast-n").map(_.toInt).foreach(FAST_Contiguous = _)
             })
           ),
           div(cls := "form-group")(
@@ -71,7 +100,7 @@ object View {
               option()("2 of Circles"),
             )
           ),
-          button(cls := "btn btn-success", onclick := (() => readForm))("Capture"),
+          button(cls := "btn btn-success", onclick := (() => readForm()))("Capture"),
         )
       ),
       div(cls := "col-8")(
@@ -85,45 +114,19 @@ object View {
   )
 
   private def redraw(): Unit = {
-    drawBox()
-    val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
-    val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
-    val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-    canvas.width = 320 - (horizontalBounds * 2)
-    canvas.height = 240 - (verticalBounds * 2)
-
-    context.drawImage(
-      videoElement,
-      horizontalBounds * 2,
-      verticalBounds * 2,
-      640 - (horizontalBounds * 2),
-      480 - (verticalBounds * 2),
-      0,
-      0,
-      320 - horizontalBounds,
-      240 - verticalBounds
-    )
-
-    val i = context.getImageData(0, 0, canvas.width, canvas.height)
-    i.grayscale()
-
-    context.putImageData(i, 0, 0)
-  }
-
-  private def drawBox(): Unit = {
     val canvas = document.getElementById("media-cover").asInstanceOf[Canvas]
     val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
     context.clearRect(0, 0, canvas.width, canvas.height)
     context.strokeStyle = "red"
     context.beginPath()
-    context.moveTo(320 - horizontalBounds, 0)
-    context.lineTo(320 - horizontalBounds, 240)
-    context.moveTo(horizontalBounds, 0)
-    context.lineTo(horizontalBounds, 240)
-    context.moveTo(0, 240 - verticalBounds)
-    context.lineTo(320, 240 - verticalBounds)
-    context.moveTo(0,verticalBounds)
-    context.lineTo(320,verticalBounds)
+    context.moveTo(320 - horizontalBound, 0)
+    context.lineTo(320 - horizontalBound, 240)
+    context.moveTo(horizontalBound, 0)
+    context.lineTo(horizontalBound, 240)
+    context.moveTo(0, 240 - verticalBound)
+    context.lineTo(320, 240 - verticalBound)
+    context.moveTo(0,verticalBound)
+    context.lineTo(320,verticalBound)
     context.stroke()
   }
 
