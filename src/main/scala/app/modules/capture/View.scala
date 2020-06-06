@@ -8,7 +8,7 @@ import org.scalajs.dom.html.{Canvas, Video}
 import org.scalajs.dom.raw.{Event, HTMLElement}
 import org.scalajs.dom.{CanvasRenderingContext2D, ImageData, document}
 import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all._
+import scalatags.JsDom.all.{i, _}
 
 object View {
 
@@ -21,18 +21,22 @@ object View {
   private var verticalBound = 0
   private var selectedTile: Int = 0
 
-  /*
-   * private var FAST_Threshold = 10;
-   * private var FAST_Contiguous = 12;
-   *
-   * val BRIEF_Pairs: Array[((Int, Int), (Int, Int))] = ImageProcessing.calculateBriefPairs(9, 64)
-   *
-   * i.grayscale()
-   * i.blur()
-   * val keyPoints = i.FAST(FAST_Threshold, FAST_Contiguous, drawResults=true)
-   * val descriptors = i.BRIEF(keyPoints, BRIEF_Pairs)
-   * descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
-   */
+  private var FAST_t: Int = 10 // FAST algorithm threshold value
+  private var FAST_n: Int = 12 // FAST algorithm contiguous values required
+  private val BRIEF_Pairs: Array[((Int, Int), (Int, Int))] = ImageProcessing.calculateBriefPairs(9, 64)
+
+  private def analyse(): Unit = {
+    tiles
+      .collect { case ((tile, _), Some(image)) => (tile, image) }
+      .toSeq
+      .foreach { case (tile, i) =>
+        val (_, context) = HTML.getCanvas("canvas-" + tile.asText)
+        val keyPoints = i.FAST(FAST_t, FAST_n, drawResults=true)
+        val descriptors = i.BRIEF(keyPoints, BRIEF_Pairs)
+        descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
+        context.putImageData(i, 0, 0)
+      }
+  }
 
   private def capture(): Unit = {
     for {
@@ -44,11 +48,9 @@ object View {
     redraw()
   }
 
-
   private def readImage: ImageData = {
     val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
-    val canvas = document.getElementById("tile-target").asInstanceOf[Canvas]
-    val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    val (canvas, context) = HTML.getCanvas("tile-target")
     canvas.width = 320 - (horizontalBound * 2)
     canvas.height = 240 - (verticalBound * 2)
 
@@ -126,7 +128,12 @@ object View {
                 HTML.inputValue("tile-select").flatMap(_.toIntOption).foreach(selectedTile = _)
               })(tileOptions)
             ),
-            button(cls := "btn btn-success", onclick := (() => capture()))("Capture"),
+            div(cls := "form-group")(
+              button(cls := "btn btn-success", onclick := (() => capture()))("Capture")
+            ),
+            div(cls := "form-group")(
+              button(cls := "btn btn-success", onclick := (() => analyse()))("Detect"),
+            )
           )
         ),
         div(cls := "col-8")(
@@ -156,8 +163,7 @@ object View {
     tiles
       .flatMap { case ((tile, _), imageData) => imageData.map((tile, _)) }
       .foreach { case (tile, imageData) =>
-        val canvas = document.getElementById("canvas-" + tile.asText).asInstanceOf[Canvas]
-        val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+        val (canvas, context) = HTML.getCanvas("canvas-" + tile.asText)
         canvas.width = imageData.width
         canvas.height = imageData.height
         context.putImageData(imageData, 0, 0)
@@ -165,8 +171,7 @@ object View {
   }
 
   private def drawBoxOverlay(): Unit = {
-    val canvas = document.getElementById("media-cover").asInstanceOf[Canvas]
-    val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+    val (canvas, context) = HTML.getCanvas("media-cover")
     context.clearRect(0, 0, canvas.width, canvas.height)
     context.strokeStyle = "red"
     context.beginPath()
