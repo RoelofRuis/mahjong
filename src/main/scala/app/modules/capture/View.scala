@@ -1,6 +1,5 @@
 package app.modules.capture
 
-import app.modules.capture.Capture.DetectionModel
 import app.modules.capture.ImageProcessing._
 import app.modules.game.model.Mahjong.{Circles, SuitedTile, Tile}
 import app.modules.game.model.Text._
@@ -13,15 +12,14 @@ import scalatags.JsDom.all._
 
 object View {
 
-  val tiles: Seq[(SuitedTile, Int)] = Seq(
+  private var tiles: Map[(Tile, Int), Option[ImageData]] = Seq(
     SuitedTile(Circles, 1),
     SuitedTile(Circles, 2),
     SuitedTile(Circles, 3),
-  ).zipWithIndex
-
+  ).zipWithIndex.map { case (tile, i) => (tile, i) -> None }.toMap
   private var horizontalBound = 0
   private var verticalBound = 0
-  private var selectedTile: Int = tiles.head._2
+  private var selectedTile: Int = 0
 
   /*
    * private var FAST_Threshold = 10;
@@ -36,13 +34,16 @@ object View {
    * descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
    */
 
-  private def readForm: Option[(Tile, ImageData)] = readTile.map(t => (t, readImage))
-
-  private def readTile: Option[Tile] =
+  private def capture(): Unit = {
     for {
       selectedIndex <- HTML.inputValue("tile-select").flatMap(_.toIntOption)
-      tile <- tiles.find { case (_, index) => index == selectedIndex }
-    } yield tile._1
+      tile <- tiles.find { case ((_, index), _) => index == selectedIndex }
+    } yield {
+      tiles = tiles.updated(tile._1, Some(readImage))
+    }
+    redraw()
+  }
+
 
   private def readImage: ImageData = {
     val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
@@ -71,14 +72,14 @@ object View {
     i
   }
 
-  def render(model: DetectionModel): (Map[String, TypedTag[HTMLElement]], () => Unit) = {
+  def render(): (Map[String, TypedTag[HTMLElement]], () => Unit) = {
     val contents = Map(
       "nav" -> navContents(),
-      "page" -> pageContents(model),
+      "page" -> pageContents(),
     )
     (contents, () => {
       drawBoxOverlay()
-      redraw(model)
+      redraw()
     })
   }
 
@@ -94,12 +95,12 @@ object View {
     ),
   )
 
-  private def pageContents(model: DetectionModel): TypedTag[HTMLElement] = {
+  private def pageContents(): TypedTag[HTMLElement] = {
     val tileOptions = tiles.map {
-      case (tile, i) =>
+      case ((tile, i), _) =>
         if (i == selectedTile) option(value := i, selected := true)(tile.asText)
         else option(value := i)(tile.asText)
-    }
+    }.toSeq
 
     div(
       div(cls := "row")(
@@ -125,7 +126,7 @@ object View {
                 HTML.inputValue("tile-select").flatMap(_.toIntOption).foreach(selectedTile = _)
               })(tileOptions)
             ),
-            button(cls := "btn btn-success", onclick := (() => readForm.foreach(Capture.addCapture)))("Capture"),
+            button(cls := "btn btn-success", onclick := (() => capture()))("Capture"),
           )
         ),
         div(cls := "col-8")(
@@ -136,11 +137,11 @@ object View {
           ),
           table(
             tbody()(
-              model.tiles.toSeq.map { case (tile, imageData) =>
+              tiles.toSeq.map { case ((tile, _), _) =>
                 tr()(
                   td()(tile.asText),
                   td()(
-                    canvas(id := "canvas-" + tile.asText,attr("width") := imageData.width, attr("height") := imageData.height, src := imageData)
+                    canvas(id := "canvas-" + tile.asText)
                   )
                 )
               }
@@ -151,12 +152,16 @@ object View {
     )
   }
 
-  private def redraw(model: DetectionModel): Unit = {
-    model.tiles.toSeq.foreach { case (tile, imageData) =>
-      val canvas = document.getElementById("canvas-" + tile.asText).asInstanceOf[Canvas]
-      val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-      context.putImageData(imageData, 0, 0)
-    }
+  private def redraw(): Unit = {
+    tiles
+      .flatMap { case ((tile, _), imageData) => imageData.map((tile, _)) }
+      .foreach { case (tile, imageData) =>
+        val canvas = document.getElementById("canvas-" + tile.asText).asInstanceOf[Canvas]
+        val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+        canvas.width = imageData.width
+        canvas.height = imageData.height
+        context.putImageData(imageData, 0, 0)
+      }
   }
 
   private def drawBoxOverlay(): Unit = {
