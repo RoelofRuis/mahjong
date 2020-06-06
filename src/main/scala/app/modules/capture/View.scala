@@ -13,14 +13,15 @@ import scalatags.JsDom.all._
 
 object View {
 
-  private var horizontalBound = 0;
-  private var verticalBound = 0;
-
   val tiles: Seq[(SuitedTile, Int)] = Seq(
     SuitedTile(Circles, 1),
     SuitedTile(Circles, 2),
     SuitedTile(Circles, 3),
   ).zipWithIndex
+
+  private var horizontalBound = 0
+  private var verticalBound = 0
+  private var selectedTile: Int = tiles.head._2
 
   /*
    * private var FAST_Threshold = 10;
@@ -39,8 +40,7 @@ object View {
 
   private def readTile: Option[Tile] =
     for {
-      selectedIndexString <- HTML.inputValue("tile-select")
-      selectedIndex <- selectedIndexString.toIntOption
+      selectedIndex <- HTML.inputValue("tile-select").flatMap(_.toIntOption)
       tile <- tiles.find { case (_, index) => index == selectedIndex }
     } yield tile._1
 
@@ -76,7 +76,10 @@ object View {
       "nav" -> navContents(),
       "page" -> pageContents(model),
     )
-    (contents, () => redraw(model))
+    (contents, () => {
+      drawBoxOverlay()
+      redraw(model)
+    })
   }
 
   private def navContents(): TypedTag[HTMLElement] = div(cls := "navbar navbar-expand-lg navbar-light bg-light")(
@@ -92,28 +95,35 @@ object View {
   )
 
   private def pageContents(model: DetectionModel): TypedTag[HTMLElement] = {
-    val tileOptions = tiles.map { case (tile, i) => option(value := i)(tile.asText) }
+    val tileOptions = tiles.map {
+      case (tile, i) =>
+        if (i == selectedTile) option(value := i, selected := true)(tile.asText)
+        else option(value := i)(tile.asText)
+    }
+
     div(
       div(cls := "row")(
         div(cls := "col-4")(
           div(cls := "form")(
             div(cls := "form-group")(
               label(`for` := "h-size", id := "h-size-label")(s"Horizontal bound"),
-              input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBound, onchange := { (e: Event) =>
+              input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBound, onchange := { (_: Event) =>
                 HTML.inputValue("h-size").map(_.toInt).foreach(horizontalBound = _)
                 drawBoxOverlay()
               })
             ),
             div(cls := "form-group")(
               label(`for` := "v-size", id := "v-size-label")(s"Vertical bound"),
-              input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBound, onchange := { (e: Event) =>
+              input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBound, onchange := { (_: Event) =>
                 HTML.inputValue("v-size").map(_.toInt).foreach(verticalBound = _)
                 drawBoxOverlay()
               })
             ),
             div(cls := "form-group")(
               label(`for` := "tile-select")(s"Tile"),
-              select(cls := "form-control", id := "tile-select")(tileOptions)
+              select(cls := "form-control", id := "tile-select", onchange := { (_: Event) =>
+                HTML.inputValue("tile-select").flatMap(_.toIntOption).foreach(selectedTile = _)
+              })(tileOptions)
             ),
             button(cls := "btn btn-success", onclick := (() => readForm.foreach(Capture.addCapture)))("Capture"),
           )
