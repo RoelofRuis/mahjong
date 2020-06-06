@@ -4,11 +4,13 @@ import app.modules.capture.ImageProcessing._
 import app.modules.game.model.Mahjong.{Circles, SuitedTile, Tile}
 import app.modules.game.model.Text._
 import app.{App, HTML}
-import org.scalajs.dom.html.{Canvas, Video}
+import org.scalajs.dom.html.Video
 import org.scalajs.dom.raw.{Event, HTMLElement}
-import org.scalajs.dom.{CanvasRenderingContext2D, ImageData, document}
+import org.scalajs.dom.{ImageData, document}
 import scalatags.JsDom.TypedTag
-import scalatags.JsDom.all.{i, _}
+import scalatags.JsDom.all._
+
+import scala.scalajs.js.typedarray.Uint8ClampedArray
 
 object View {
 
@@ -31,10 +33,12 @@ object View {
       .toSeq
       .foreach { case (tile, i) =>
         val (_, context) = HTML.getCanvas("canvas-" + tile.asText)
-        val keyPoints = i.FAST(FAST_t, FAST_n, drawResults=true)
-        val descriptors = i.BRIEF(keyPoints, BRIEF_Pairs)
-        descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
-        context.putImageData(i, 0, 0)
+        val workImage = context.createImageData(i.width, i.height)
+        workImage.data.asInstanceOf[Uint8ClampedArray].set(i.data)
+        val keyPoints = workImage.FAST(FAST_t, FAST_n, drawResults=true)
+        val descriptors = workImage.BRIEF(keyPoints, BRIEF_Pairs)
+//        descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
+        context.putImageData(workImage, 0, 0)
       }
   }
 
@@ -107,6 +111,11 @@ object View {
     div(
       div(cls := "row")(
         div(cls := "col-4")(
+          div(width := 340, height := 240)(
+            video(id := "media-stream", zIndex := 0, position := "absolute", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
+            canvas(id := "media-cover", zIndex := 10, position := "absolute", verticalAlign := "top", attr("width") := 320, attr("height") := 240),
+            canvas(id := "tile-target", display := "none", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
+          ),
           div(cls := "form")(
             div(cls := "form-group")(
               label(`for` := "h-size", id := "h-size-label")(s"Horizontal bound"),
@@ -132,23 +141,30 @@ object View {
               button(cls := "btn btn-success", onclick := (() => capture()))("Capture")
             ),
             div(cls := "form-group")(
+              label(`for` := "fast-t", id := "fast-t-label")(s"FAST t"),
+              input(cls := "form-control", `type` := "range", min := 1, max := 20, id := "fast-t", value := FAST_t, onchange := { (_: Event) =>
+                HTML.inputValue("fast-t").map(_.toInt).foreach(FAST_t = _)
+              })
+            ),
+            div(cls := "form-group")(
+              label(`for` := "fast-n", id := "fast-n-label")(s"FAST n"),
+              input(cls := "form-control", `type` := "range", min := 1, max := 16, id := "fast-n", value := FAST_n, onchange := { (_: Event) =>
+                HTML.inputValue("fast-n").map(_.toInt).foreach(FAST_n = _)
+              })
+            ),
+            div(cls := "form-group")(
               button(cls := "btn btn-success", onclick := (() => analyse()))("Detect"),
             )
           )
         ),
         div(cls := "col-8")(
-          div(width := 340, height := 240)(
-            video(id := "media-stream", zIndex := 0, position := "absolute", attr("width") := 320, attr("height") := 240, attr("autoplay") := true),
-            canvas(id := "media-cover", zIndex := 10, position := "absolute", verticalAlign := "top", attr("width") := 320, attr("height") := 240),
-            canvas(id := "tile-target", display := "none", verticalAlign := "top", attr("width") := 320, attr("height") := 240)
-          ),
-          table(
+          table(cls := "table table-bordered")(
             tbody()(
               tiles.toSeq.map { case ((tile, _), _) =>
                 tr()(
                   td()(tile.asText),
                   td()(
-                    canvas(id := "canvas-" + tile.asText)
+                    canvas(id := "canvas-" + tile.asText, attr("height") := 0)
                   )
                 )
               }
