@@ -4,13 +4,16 @@ import app.modules.capture.ImageProcessing._
 import app.modules.game.model.Mahjong.{Circles, SuitedTile, Tile}
 import app.modules.game.model.Text._
 import app.{App, HTML}
+import org.scalajs.dom
 import org.scalajs.dom.html.Video
 import org.scalajs.dom.raw.{Event, HTMLElement}
 import org.scalajs.dom.{ImageData, document}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
+import upickle.default._
 
 import scala.scalajs.js.typedarray.Uint8ClampedArray
+import scala.util.{Failure, Success, Try}
 
 object View {
 
@@ -76,6 +79,53 @@ object View {
 
     context.putImageData(i, 0, 0)
     i
+  }
+
+  private def save(): Unit = {
+    val saveableTiles = tiles
+      .collect { case ((tile, _), Some(image)) => (tile, image) }
+      .toSeq
+      .map { case (tile, i) =>
+        val data = i.data
+        val builder = new StringBuilder()
+        for (b <- 0 until data.length / 4) {
+          builder.addOne(data(b * 4).toChar)
+        }
+        val base64String = dom.window.btoa(builder.result())
+        (tile.asText, (i.width, i.height, base64String))
+      }
+    val string = write(saveableTiles)
+    dom.window.localStorage.setItem("CAPTURES", string)
+  }
+
+  private def load(): Unit = {
+    Option(dom.window.localStorage.getItem("CAPTURES")) match {
+      case None => dom.console.log("Nothing to load")
+      case Some(data) =>
+        Try(read[Seq[(String, (Int, Int, String))]](data)) match {
+          case Failure(ex) => dom.console.error(ex)
+          case Success(res) =>
+            val resultMap = res.toMap
+            tiles.map { case ((tile, index), image) =>
+              resultMap.get(tile.asText) match {
+                case None => ((tile, index), image)
+                case Some((width, height, base64String)) =>
+                  val bytes = dom.window.atob(base64String).map(_.toInt)
+                  val (canvas, context) = HTML.getCanvas("canvas-" + tile.asText)
+                  canvas.width = width
+                  canvas.height = height
+                  val img = context.getImageData(0, 0, width, height)
+                  for (b <- bytes.indices) {
+                    img.data(b * 4) = bytes(b)
+                    img.data(b * 4 + 1) = bytes(b)
+                    img.data(b * 4 + 2) = bytes(b)
+                    img.data(b * 4 + 3) = 255
+                  }
+                  context.putImageData(img, 0, 0)
+              }
+            }
+        }
+    }
   }
 
   def render(): (Map[String, TypedTag[HTMLElement]], () => Unit) = {
@@ -154,6 +204,10 @@ object View {
             ),
             div(cls := "form-group")(
               button(cls := "btn btn-success", onclick := (() => analyse()))("Detect"),
+            ),
+            div(cls := "form-group")(
+              button(cls := "btn btn-primary mr-1 ", onclick := (() => save()))("Save"),
+              button(cls := "btn btn-primary", onclick := (() => load()))("Load")
             )
           )
         ),
