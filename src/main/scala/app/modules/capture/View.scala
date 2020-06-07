@@ -10,10 +10,8 @@ import org.scalajs.dom.raw.{Event, HTMLElement}
 import org.scalajs.dom.{ImageData, document}
 import scalatags.JsDom.TypedTag
 import scalatags.JsDom.all._
-import upickle.default._
 
 import scala.scalajs.js.typedarray.Uint8ClampedArray
-import scala.util.{Failure, Success, Try}
 
 object View {
 
@@ -22,13 +20,47 @@ object View {
     SuitedTile(Circles, 2),
     SuitedTile(Circles, 3),
   ).zipWithIndex.map { case (tile, i) => (tile, i) -> None }.toMap
-  private var horizontalBound = 0
-  private var verticalBound = 0
+  private var horizontalBound: Int = 0
+  private var verticalBound: Int = 0
   private var selectedTile: Int = 0
 
   private var FAST_t: Int = 10 // FAST algorithm threshold value
   private var FAST_n: Int = 12 // FAST algorithm contiguous values required
   private val BRIEF_Pairs: Array[((Int, Int), (Int, Int))] = ImageProcessing.calculateBriefPairs(9, 64)
+
+  private def testModel(): Unit = {
+    val videoElement = document.getElementById("media-stream").asInstanceOf[Video]
+    val (canvas, context) = HTML.getCanvas("model-verify")
+    canvas.removeAttribute("style")
+
+    drawBoxOverlay(0, 90)
+
+    context.drawImage(
+      videoElement,
+      0,
+      180,
+      640,
+      120,
+      0,
+      0,
+      640,
+      120
+    )
+
+    val i = context.getImageData(0, 0, canvas.width, canvas.height)
+    i.grayscale()
+    i.blur()
+    i.FAST(FAST_t, FAST_n, drawResults = true)
+
+    context.putImageData(i, 0, 0)
+  }
+
+  private def hideTest(): Unit = {
+    val (canvas, context) = HTML.getCanvas("model-verify")
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    canvas.style = "display: none"
+    drawBoxOverlay(horizontalBound, verticalBound)
+  }
 
   private def analyse(): Unit = {
     tiles
@@ -38,9 +70,9 @@ object View {
         val (_, context) = HTML.getCanvas("canvas-" + tile.asText)
         val workImage = context.createImageData(i.width, i.height)
         workImage.data.asInstanceOf[Uint8ClampedArray].set(i.data)
-        val keyPoints = workImage.FAST(FAST_t, FAST_n, drawResults=true)
+        val keyPoints = workImage.FAST(FAST_t, FAST_n, drawResults = true)
         val descriptors = workImage.BRIEF(keyPoints, BRIEF_Pairs)
-//        descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
+        //        descriptors.map(_.map { if (_) '1' else '0'}.mkString("")).foreach(println)
         context.putImageData(workImage, 0, 0)
       }
   }
@@ -81,49 +113,28 @@ object View {
     i
   }
 
-  private def save(): Unit = {
-    val saveableTiles = tiles
-      .collect { case ((tile, _), Some(image)) => (tile, image) }
-      .toSeq
-      .map { case (tile, i) =>
-        val data = i.data
-        val builder = new StringBuilder()
-        for (b <- 0 until data.length / 4) {
-          builder.addOne(data(b * 4).toChar)
-        }
-        val base64String = dom.window.btoa(builder.result())
-        (tile.asText, (i.width, i.height, base64String))
-      }
-    val string = write(saveableTiles)
-    dom.window.localStorage.setItem("CAPTURES", string)
-  }
-
-  private def load(): Unit = {
-    Option(dom.window.localStorage.getItem("CAPTURES")) match {
-      case None => dom.console.log("Nothing to load")
-      case Some(data) =>
-        Try(read[Seq[(String, (Int, Int, String))]](data)) match {
-          case Failure(ex) => dom.console.error(ex)
-          case Success(res) =>
-            val resultMap = res.toMap
-            tiles = tiles.map { case ((tile, index), image) =>
-              resultMap.get(tile.asText) match {
-                case None => ((tile, index), image)
-                case Some((width, height, base64String)) =>
-                  val bytes = dom.window.atob(base64String).map(_.toInt)
-                  val (canvas, context) = HTML.getCanvas("canvas-" + tile.asText)
-                  canvas.width = width
-                  canvas.height = height
-                  val img = context.getImageData(0, 0, width, height)
-                  for (b <- bytes.indices) {
-                    img.data(b * 4) = bytes(b)
-                    img.data(b * 4 + 1) = bytes(b)
-                    img.data(b * 4 + 2) = bytes(b)
-                    img.data(b * 4 + 3) = 255
-                  }
-                  ((tile, index), Some(img))
+  private def reloadTiles(): Unit = {
+    load() match {
+      case None =>
+      case Some(loadedTiles) =>
+        val resultMap = loadedTiles.toMap
+        tiles = tiles.map { case ((tile, index), image) =>
+          resultMap.get(tile.asText) match {
+            case None => ((tile, index), image)
+            case Some((width, height, base64String)) =>
+              val bytes = dom.window.atob(base64String).map(_.toInt)
+              val (canvas, context) = HTML.getCanvas("canvas-" + tile.asText)
+              canvas.width = width
+              canvas.height = height
+              val img = context.getImageData(0, 0, width, height)
+              for (b <- bytes.indices) {
+                img.data(b * 4) = bytes(b)
+                img.data(b * 4 + 1) = bytes(b)
+                img.data(b * 4 + 2) = bytes(b)
+                img.data(b * 4 + 3) = 255
               }
-            }
+              ((tile, index), Some(img))
+          }
         }
         redraw()
     }
@@ -135,7 +146,7 @@ object View {
       "page" -> pageContents(),
     )
     (contents, () => {
-      drawBoxOverlay()
+      drawBoxOverlay(horizontalBound, verticalBound)
       redraw()
     })
   }
@@ -172,14 +183,14 @@ object View {
               label(`for` := "h-size", id := "h-size-label")(s"Horizontal bound"),
               input(cls := "form-control", `type` := "range", min := 0, max := 160, id := "h-size", value := horizontalBound, onchange := { (_: Event) =>
                 HTML.inputValue("h-size").map(_.toInt).foreach(horizontalBound = _)
-                drawBoxOverlay()
+                drawBoxOverlay(horizontalBound, verticalBound)
               })
             ),
             div(cls := "form-group")(
               label(`for` := "v-size", id := "v-size-label")(s"Vertical bound"),
               input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBound, onchange := { (_: Event) =>
                 HTML.inputValue("v-size").map(_.toInt).foreach(verticalBound = _)
-                drawBoxOverlay()
+                drawBoxOverlay(horizontalBound, verticalBound)
               })
             ),
             div(cls := "form-group")(
@@ -204,15 +215,18 @@ object View {
               })
             ),
             div(cls := "form-group")(
-              button(cls := "btn btn-success", onclick := (() => analyse()))("Detect"),
+              button(cls := "btn btn-success mr-1", onclick := (() => analyse()))("Analyse"),
+              button(cls := "btn btn-success mr-1", onclick := (() => testModel()))("Test"),
+              button(cls := "btn btn-outline-success", onclick := (() => hideTest()))("Hide"),
             ),
             div(cls := "form-group")(
-              button(cls := "btn btn-primary mr-1 ", onclick := (() => save()))("Save"),
-              button(cls := "btn btn-primary", onclick := (() => load()))("Load")
+              button(cls := "btn btn-primary mr-1 ", onclick := (() => save(tiles)))("Save"),
+              button(cls := "btn btn-primary", onclick := (() => reloadTiles()))("Load")
             )
           )
         ),
         div(cls := "col-8")(
+          canvas(id := "model-verify", display := "none", attr("width") := 640, attr("height") := 120),
           table(cls := "table table-bordered")(
             tbody()(
               tiles.toSeq.map { case ((tile, _), _) =>
@@ -241,19 +255,19 @@ object View {
       }
   }
 
-  private def drawBoxOverlay(): Unit = {
+  private def drawBoxOverlay(hBound: Int, vBound: Int): Unit = {
     val (canvas, context) = HTML.getCanvas("media-cover")
     context.clearRect(0, 0, canvas.width, canvas.height)
     context.strokeStyle = "red"
     context.beginPath()
-    context.moveTo(320 - horizontalBound, 0)
-    context.lineTo(320 - horizontalBound, 240)
-    context.moveTo(horizontalBound, 0)
-    context.lineTo(horizontalBound, 240)
-    context.moveTo(0, 240 - verticalBound)
-    context.lineTo(320, 240 - verticalBound)
-    context.moveTo(0, verticalBound)
-    context.lineTo(320, verticalBound)
+    context.moveTo(320 - hBound, 0)
+    context.lineTo(320 - hBound, 240)
+    context.moveTo(hBound, 0)
+    context.lineTo(hBound, 240)
+    context.moveTo(0, 240 - vBound)
+    context.lineTo(320, 240 - vBound)
+    context.moveTo(0, vBound)
+    context.lineTo(320, vBound)
     context.stroke()
   }
 
