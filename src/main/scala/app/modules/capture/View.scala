@@ -106,7 +106,7 @@ object View {
           case Failure(ex) => dom.console.error(ex)
           case Success(res) =>
             val resultMap = res.toMap
-            tiles.map { case ((tile, index), image) =>
+            tiles = tiles.map { case ((tile, index), image) =>
               resultMap.get(tile.asText) match {
                 case None => ((tile, index), image)
                 case Some((width, height, base64String)) =>
@@ -121,10 +121,11 @@ object View {
                     img.data(b * 4 + 2) = bytes(b)
                     img.data(b * 4 + 3) = 255
                   }
-                  context.putImageData(img, 0, 0)
+                  ((tile, index), Some(img))
               }
             }
         }
+        redraw()
     }
   }
 
