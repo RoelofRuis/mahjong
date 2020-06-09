@@ -106,8 +106,7 @@ object View {
     )
 
     val i = context.getImageData(0, 0, canvas.width, canvas.height)
-    i.grayscale()
-    i.blur()
+    i.colorThreshold()
 
     context.putImageData(i, 0, 0)
     i

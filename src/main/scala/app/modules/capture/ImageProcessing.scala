@@ -101,6 +101,39 @@ object ImageProcessing {
       }
     }
 
+    def colorThreshold(): Unit = {
+      for (y: Int <- 0 until height) {
+        for (x: Int <- 0 until width) {
+          val rNorm = r(x, y) / 255
+          val gNorm = g(x, y) / 255
+          val bNorm = b(x, y) / 255
+          val cMax = Seq(rNorm, gNorm, bNorm).max
+          val cMin = Seq(rNorm, gNorm, bNorm).min
+          val delta = cMax - cMin
+
+          val h = {
+            if (delta == 0) 0
+            else if (cMax == rNorm) ((gNorm - bNorm) / delta) * 60
+            else if (cMax == gNorm) (2 + ((bNorm - rNorm) / delta)) * 60
+            else (4 + ((rNorm - gNorm) / delta)) * 60
+          }
+          val s = (cMax - cMin) / cMax
+          val v = cMax
+          if (s > 0.5) {
+            if (h >= 330 || h < 30) putPixel(x, y, 255, 0, 0)
+            else if (h >= 30 && h < 90 ) putPixel(x, y, 255, 255, 0)
+            else if (h >= 90 && h < 150) putPixel(x, y, 0, 255, 0)
+            else if (h >= 150 && h < 270) putPixel(x, y, 0, 0, 255)
+            else if (h >= 270 && h < 330) putPixel(x, y, 255, 0, 255)
+          }
+          else {
+            if (v > 0.5) putPixel(x, y, 255, 255, 255)
+            else putPixel(x, y, 0, 0, 0)
+          }
+        }
+      }
+    }
+
     @inline
     def diff(a: Double, b: Double, t: Int): Int = {
       if (a > (b + t)) 1
