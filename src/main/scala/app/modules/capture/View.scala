@@ -24,6 +24,9 @@ object View {
   private var verticalBound: Int = 0
   private var selectedTile: Int = 0
 
+  private var redHueWidth = 30
+  private var redSaturation = 0.5
+
   private var FAST_t: Int = 10 // FAST algorithm threshold value
   private var FAST_n: Int = 12 // FAST algorithm contiguous values required
   private val BRIEF_Pairs: Array[((Int, Int), (Int, Int))] = ImageProcessing.calculateBriefPairs(9, 64)
@@ -106,7 +109,10 @@ object View {
     )
 
     val i = context.getImageData(0, 0, canvas.width, canvas.height)
-    i.colorThreshold()
+    i.colorThreshold(
+      redHueWidth,
+      redSaturation
+    )
 
     context.putImageData(i, 0, 0)
     i
@@ -190,6 +196,18 @@ object View {
               input(cls := "form-control", `type` := "range", min := 0, max := 120, id := "v-size", value := verticalBound, onchange := { (_: Event) =>
                 HTML.inputValue("v-size").map(_.toInt).foreach(verticalBound = _)
                 drawBoxOverlay(horizontalBound, verticalBound)
+              })
+            ),
+            div(cls := "form-group")(
+              label(`for` := "r-hue-width", id := "r-hue-width-label")(s"Red Hue Width"),
+              input(cls := "form-control", `type` := "range", min := 0, max := 45, id := "r-hue-width", value := redHueWidth, onchange := { (_: Event) =>
+                HTML.inputValue("r-hue-width").map(_.toInt).foreach(redHueWidth = _)
+              })
+            ),
+            div(cls := "form-group")(
+              label(`for` := "r-sat", id := "r-sat-label")(s"Red Saturation"),
+              input(cls := "form-control", `type` := "range", min := 0, max := 1, step := 0.1, id := "r-sat", value := redSaturation, onchange := { (_: Event) =>
+                HTML.inputValue("r-sat").map(_.toDouble).foreach(redSaturation = _)
               })
             ),
             div(cls := "form-group")(

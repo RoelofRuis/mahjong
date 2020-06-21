@@ -101,7 +101,15 @@ object ImageProcessing {
       }
     }
 
-    def colorThreshold(): Unit = {
+    def colorThreshold(
+      redHueWidth: Int = 30,
+      redSaturation: Double = 0.5,
+      greenHueWidth: Int = 30,
+      greenSaturation: Double = 0.5,
+      blueHueWidth: Int = 30,
+      blueSaturation: Double = 0.5,
+      valueTreshold: Double = 0.5,
+    ): Unit = {
       for (y: Int <- 0 until height) {
         for (x: Int <- 0 until width) {
           val rNorm = r(x, y) / 255
@@ -119,17 +127,12 @@ object ImageProcessing {
           }
           val s = (cMax - cMin) / cMax
           val v = cMax
-          if (s > 0.5) {
-            if (h >= 330 || h < 30) putPixel(x, y, 255, 0, 0)
-            else if (h >= 30 && h < 90 ) putPixel(x, y, 255, 255, 0)
-            else if (h >= 90 && h < 150) putPixel(x, y, 0, 255, 0)
-            else if (h >= 150 && h < 270) putPixel(x, y, 0, 0, 255)
-            else if (h >= 270 && h < 330) putPixel(x, y, 255, 0, 255)
-          }
-          else {
-            if (v > 0.5) putPixel(x, y, 255, 255, 255)
-            else putPixel(x, y, 0, 0, 0)
-          }
+
+          if ((h >= (360 - redHueWidth) || h < (0 + redHueWidth)) && s >= redSaturation) putPixel(x, y, 255, 0, 0)
+          else if ((h >= (120 - greenHueWidth) || h < (120 + greenHueWidth)) && s >= greenSaturation) putPixel(x, y, 0, 255, 0)
+          else if ((h >= (180 - blueHueWidth) || h < (180 + blueHueWidth)) && s >= blueSaturation) putPixel(x, y, 0, 0, 255)
+          else if (v >= valueTreshold) putPixel(x, y, 255, 255, 255)
+          else putPixel(x, y, 0, 0, 0)
         }
       }
     }
@@ -209,7 +212,7 @@ object ImageProcessing {
               atStart = true
             )
             if (selected) {
-              if (drawResults) putPixel(x, y, 0, 255, 0)
+              if (drawResults) putPixel(x, y, 255, 0, 255)
               res.append((x, y))
             }
           }
